@@ -14,16 +14,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-#set(BinarySuffix "")
-#if(CMAKE_DEBUG_POSTFIX)
-#  set(CMAKE_DEBUG_POSTFIX D)	
-#  set(BinarySuffix ${CMAKE_DEBUG_POSTFIX})
-#endif()
-
 project (TestTinyXML2)
-
-# Compile definitions
-#add_definitions(-DLUA_BUILD_AS_DLL -DADAPTER_EXPORTING -DRUNTIME_EXPORTING -DCOMMON_EXPORTING -DAPI_EXPORTING)
 
 #Set output directory
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -31,5 +22,5 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Include sub-projects.
-add_subdirectory(TestTinyXML2)
+add_subdirectory(ParsingXml)
 add_subdirectory(lib)
