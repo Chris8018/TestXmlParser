@@ -1,1 +1,1 @@
-# Test TinyXML2
+# Test XML Parser Library for C++
