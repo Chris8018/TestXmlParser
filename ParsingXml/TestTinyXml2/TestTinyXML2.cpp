@@ -1,12 +1,13 @@
 ﻿// ParsingXml.cpp : Defines the entry point for the application.
 //
 
-#include "ParsingXml.h"
+#include "TestTinyXML2.h"
 //#include <tinyxml2.h>
-using namespace std;
+
+#include <iostream>
 
 int main()
 {
-    cout << "Hello CMake." << endl;
+    std::cout << "Hello CMake." << std::endl;
     return 0;
 }
