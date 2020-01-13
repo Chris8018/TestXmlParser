@@ -1,1 +1,2 @@
 add_subdirectory(TestTinyXML2)
+add_subdirectory(TestXerces)
