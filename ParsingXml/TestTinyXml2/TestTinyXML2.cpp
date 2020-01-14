@@ -95,10 +95,13 @@ void loadingDoc()
     std::cout << "Loading Doc" << std::endl;
 
     std::vector<std::string> paths = { "D:\\Workspace\\XmlStorage\\SavedData.xml" };
+    paths.push_back("D:\\Workspace\\XmlStorage\\BigXmlFile.xml");
     paths.push_back("D:\\Workspace\\XmlStorage\\SmallXmlFile.xml");
+    paths.push_back("D:\\Workspace\\XmlStorage\\simple.xml");
+
     XMLDocument xmlDoc;
 
-    XMLError eResult = xmlDoc.LoadFile();
+    XMLError eResult = xmlDoc.LoadFile(paths[1].c_str());
 
     if (eResult != XML_SUCCESS)
     {
