@@ -101,7 +101,7 @@ void loadingDoc()
 
     XMLDocument xmlDoc;
 
-    XMLError eResult = xmlDoc.LoadFile(paths[1].c_str());
+    XMLError eResult = xmlDoc.LoadFile(paths[3].c_str());
 
     if (eResult != XML_SUCCESS)
     {
