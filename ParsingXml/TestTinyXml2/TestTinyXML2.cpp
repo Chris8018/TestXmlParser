@@ -2,12 +2,124 @@
 //
 
 #include "TestTinyXML2.h"
-//#include <tinyxml2.h>
+#include <tinyxml2.h>
+using namespace tinyxml2;
 
 #include <iostream>
+#include <vector>
+#include <string>
+
+#ifndef XMLCheckResult
+#define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS) { printf("Error: %i\n", a_eResult); return a_eResult; }
+#endif
+
+void createDoc();
+void loadingDoc();
 
 int main()
 {
-    std::cout << "Hello CMake." << std::endl;
+    createDoc();
+
+    loadingDoc();
+
     return 0;
+}
+
+void createDoc()
+{
+    std::cout << "Create Doc" << std::endl;
+
+    std::string header = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>";
+
+    // DOC
+    XMLDocument xmlDoc;
+
+    xmlDoc.Parse(header.c_str());
+
+    // ROOT
+    XMLNode *pRoot = xmlDoc.NewElement("Root");
+
+    //xmlDoc.InsertFirstChild(pRoot);
+    xmlDoc.InsertEndChild(pRoot);
+
+    // INSERT ELEMENT
+    XMLElement *pElement = xmlDoc.NewElement("IntValue");
+    pElement->SetText(10);
+
+    pRoot->InsertEndChild(pElement);
+
+    XMLText *test = pElement->ToText();
+    // FLOAT
+    pElement = xmlDoc.NewElement("FloatValue");
+    pElement->SetText(0.5f);
+
+    // Attribute
+    pElement = xmlDoc.NewElement("Date");
+    pElement->SetAttribute("day", 26);
+    pElement->SetAttribute("month", "April");
+    pElement->SetAttribute("year", 2014);
+    pElement->SetAttribute("dateFormat", "26/04/2014");
+
+    pRoot->InsertEndChild(pElement);
+
+    // LIST
+    pElement = xmlDoc.NewElement("List");
+
+    std::vector<int> vecList = { 1, 2, 3 };
+    for (const auto &item : vecList)
+    {
+        XMLElement *pListElement = xmlDoc.NewElement("Item");
+        pListElement->SetText(item);
+
+        pElement->InsertEndChild(pListElement);
+
+    }
+
+    pElement->SetAttribute("itemCount", vecList.size());
+
+    pRoot->InsertEndChild(pElement);
+
+    // Print to Console
+    xmlDoc.Print();
+
+    // Save
+    XMLError eResult = xmlDoc.SaveFile("D:\\Workspace\\XmlStorage\\SavedData.xml");
+
+    if (eResult != XML_SUCCESS)
+        printf("Error: %i\n", eResult);
+
+}
+
+void loadingDoc()
+{
+    std::cout << "Loading Doc" << std::endl;
+
+    std::vector<std::string> paths = { "D:\\Workspace\\XmlStorage\\SavedData.xml" };
+    paths.push_back("D:\\Workspace\\XmlStorage\\SmallXmlFile.xml");
+    XMLDocument xmlDoc;
+
+    XMLError eResult = xmlDoc.LoadFile();
+
+    if (eResult != XML_SUCCESS)
+    {
+        printf("Error: %i\n", eResult);
+        return;
+    }
+
+    // Print to Console
+    xmlDoc.Print();
+
+    /*XMLNode *pRoot = xmlDoc.FirstChild();
+
+    if (pRoot == nullptr)
+    {
+        std::cout << "NULL ROOT" << std::endl;
+        return;
+    }
+
+    if (dynamic_cast<XMLDeclaration *>(pRoot))
+    {
+        std::cout << "P.I. tag (XMLDeclaration)" << std::endl;
+    }*/
+
 }
