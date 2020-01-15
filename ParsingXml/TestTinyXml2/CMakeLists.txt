@@ -9,6 +9,6 @@ add_executable (${PROJECT_NAME} "TestTinyXML2.cpp" "TestTinyXML2.h")
 # Set include paths
 include_directories(
     ${CMAKE_SOURCE_DIR}/lib/tinyxml2/
-)	
+)
 
 target_link_libraries(${PROJECT_NAME}  tinyxml2)

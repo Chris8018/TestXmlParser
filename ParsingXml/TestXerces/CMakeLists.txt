@@ -11,8 +11,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/lib/xerces-c-3.2.2/src
 )
 
-message("${xerces-c}")
-
 target_link_libraries(${PROJECT_NAME} xerces-c)
 
 if (EXISTS "${CMAKE_BINARY_DIR}/lib/xerces-c-3.2.2/src/xercesc/util/Xerces_autoconf_config.hpp")

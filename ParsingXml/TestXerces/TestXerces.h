@@ -1,5 +1,5 @@
-#ifndef TextXMLPaser_TestXerces
-#define TextXMLPaser_TestXerces
+#ifndef TestXerces_H
+#define TestXerces_H
 
 
 #endif // !TextXMLPaser_TestXerces
