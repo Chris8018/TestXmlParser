@@ -9,12 +9,18 @@ using namespace tinyxml2;
 #include <vector>
 #include <string>
 
+#include <memory>
+
+#include <typeinfo>
+
 #ifndef XMLCheckResult
 #define XMLCheckResult(a_eResult) if (a_eResult != XML_SUCCESS) { printf("Error: %i\n", a_eResult); return a_eResult; }
 #endif
 
 void createDoc();
 void loadingDoc();
+
+std::string XmlNodeToString(const XMLNode &);
 
 int main()
 {
@@ -29,18 +35,23 @@ void createDoc()
 {
     std::cout << "Create Doc" << std::endl;
 
+    //XMLDocument::
+
     std::string header = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>";
 
     // DOC
     XMLDocument xmlDoc;
 
-    xmlDoc.Parse(header.c_str());
+    //xmlDoc.Parse(header.c_str());
+
+    // DECLARATION NODE
+    XMLDeclaration *xmlDecl = xmlDoc.NewDeclaration("xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"");
 
     // ROOT
     XMLNode *pRoot = xmlDoc.NewElement("Root");
 
-    //xmlDoc.InsertFirstChild(pRoot);
-    xmlDoc.InsertEndChild(pRoot);
+    xmlDoc.InsertFirstChild(pRoot);
+    //xmlDoc.InsertEndChild(pRoot);
 
     // INSERT ELEMENT
     XMLElement *pElement = xmlDoc.NewElement("IntValue");
@@ -76,18 +87,35 @@ void createDoc()
     }
 
     pElement->SetAttribute("itemCount", vecList.size());
+    pElement->SetAttribute("itemType", typeid(int).name());
 
     pRoot->InsertEndChild(pElement);
 
+    // Get Attribute(s)
+    std::cout << "Try grab attibutes" << std::endl;
+    pElement->FirstAttribute()->Next();
+    //std::cout <<  << std::endl;
+
+    // Convert to String
+    std::cout << "Try convert Doc/Element to String" << std::endl;
+
+    std::cout << "Doc" << std::endl;
+    std::cout << XmlNodeToString(xmlDoc) << std::endl;
+
+    std::cout << "Ele" << std::endl;
+    std::cout << XmlNodeToString(*pElement) << std::endl;
+
+    std::cout << "Decl" << std::endl;
+    std::cout << XmlNodeToString(*xmlDecl) << std::endl;
+
     // Print to Console
-    xmlDoc.Print();
+    //xmlDoc.Print();
 
     // Save
     XMLError eResult = xmlDoc.SaveFile("D:\\Workspace\\XmlStorage\\SavedData.xml");
 
     if (eResult != XML_SUCCESS)
         printf("Error: %i\n", eResult);
-
 }
 
 void loadingDoc()
@@ -111,18 +139,13 @@ void loadingDoc()
 
     // Print to Console
     xmlDoc.Print();
+}
 
-    /*XMLNode *pRoot = xmlDoc.FirstChild();
+std::string XmlNodeToString(const XMLNode &node)
+{
+    XMLPrinter printer;
+    node.Accept(&printer);
 
-    if (pRoot == nullptr)
-    {
-        std::cout << "NULL ROOT" << std::endl;
-        return;
-    }
-
-    if (dynamic_cast<XMLDeclaration *>(pRoot))
-    {
-        std::cout << "P.I. tag (XMLDeclaration)" << std::endl;
-    }*/
-
+    std::string str = printer.CStr();
+    return str;
 }
