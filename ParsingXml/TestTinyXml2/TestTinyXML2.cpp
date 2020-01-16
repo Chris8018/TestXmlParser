@@ -74,7 +74,7 @@ void createDoc()
     pRoot->InsertEndChild(pElement);
 
     // LIST
-    pElement = xmlDoc.NewElement("List");
+    pElement = xmlDoc.NewElement("eg:List");
 
     std::vector<int> vecList = { 1, 2, 3 };
     for (const auto &item : vecList)
@@ -86,7 +86,7 @@ void createDoc()
 
     }
 
-    pElement->SetAttribute("itemCount", vecList.size());
+    pElement->SetAttribute("abc:itemCount", vecList.size());
     pElement->SetAttribute("itemType", typeid(int).name());
 
     pRoot->InsertEndChild(pElement);
@@ -94,7 +94,6 @@ void createDoc()
     // Get Attribute(s)
     std::cout << "Try grab attibutes" << std::endl;
     pElement->FirstAttribute()->Next();
-    //std::cout <<  << std::endl;
 
     // Convert to String
     std::cout << "Try convert Doc/Element to String" << std::endl;
@@ -112,7 +111,7 @@ void createDoc()
     //xmlDoc.Print();
 
     // Save
-    XMLError eResult = xmlDoc.SaveFile("D:\\Workspace\\XmlStorage\\SavedData.xml");
+    XMLError eResult = xmlDoc.SaveFile("D:\\Workspace\\XmlStorage\\SavedData_xmlTest_Tiny.xml");
 
     if (eResult != XML_SUCCESS)
         printf("Error: %i\n", eResult);

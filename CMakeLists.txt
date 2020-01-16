@@ -15,9 +15,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Set duplicate target
-set(ALLOW_DUPLICATE_CUSTOM_TARGETS TRUE)
+#set(ALLOW_DUPLICATE_CUSTOM_TARGETS TRUE)
 
-project (XMLParserLibTest)
+project (TestXMLParser)
 
 #Set output directory
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -25,5 +25,5 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Include sub-projects.
-add_subdirectory(ParsingXml)
 add_subdirectory(lib)
+add_subdirectory(ParsingXml)

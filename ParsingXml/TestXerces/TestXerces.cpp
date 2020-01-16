@@ -57,7 +57,7 @@ private:
 
 int main(void)
 {
-    toFile = true;
+    toFile = false;
 
     CreateAndPrint();
 
@@ -69,6 +69,7 @@ void CreateAndPrint()
     std::cout << "CreateAndPrintOnConsole" << std::endl;
 
     std::vector<std::string> paths = { "D:\\Workspace\\XmlStorage\\SavedData_xerces.xml" };
+
     // Initialze
     try
     {
@@ -89,7 +90,11 @@ void CreateAndPrint()
     DOMDocument *domDoc2 =
         domImpl->createDocument(0, 0, 0);
 
-    //domDoc2->set
+    // Dom Ele2 - with namespace
+    DOMElement *domEle2 = domDoc2->createElement(XMLString::transcode("namespace:randomChild1"));
+
+    //domDoc2->appendChild(domEle2);
+
     // DOMDoc1
     DOMDocument *domDoc1 =
         domImpl->createDocument(0, XMLString::transcode("Hello_World"), 0);
@@ -98,6 +103,14 @@ void CreateAndPrint()
     DOMElement *domEle1 = domDoc1->createElement(XMLString::transcode("child1"));
 
     domDoc1->getFirstChild()->appendChild(domEle1);
+
+    // Try adding random element
+    DOMNode *movedEle2 = domDoc1->importNode(domEle2, false);
+    domEle1->appendChild(movedEle2);
+
+    // Try changing movedEle2
+    // Changing domEle2 does not make any different
+    dynamic_cast<DOMElement *>(movedEle2)->setAttribute(XMLString::transcode("sad:inde"), XMLString::transcode("a value in attr with namespace"));
 
     // DOMLSOutput
     DOMLSOutput *theOutPut = domImpl->createLSOutput();
@@ -123,6 +136,9 @@ void CreateAndPrint()
 
     // Print on Console
     theSerializer->write(domDoc1, theOutPut);
+
+    // Print on Console
+    //theSerializer->write(domDoc2, theOutPut);
 
     // ToString
     /*XMLCh* str = theSerializer->writeToString(domDoc1);
