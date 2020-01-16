@@ -17,8 +17,10 @@
 
 #include <Poco/DOM/AutoPtr.h>
 #include <Poco/DOM/DOMWriter.h>
-
 #include <Poco/XML/XMLWriter.h>
+
+#include <Poco/UTF16Encoding.h>
+#include <Poco/TextEncoding.h>
 using namespace Poco::XML;
 
 #include <iostream>
@@ -38,6 +40,8 @@ void basicCreateAndPrintAndEncoding();
 int main()
 {
     paths.push_back("D:\\Workspace\\XmlStorage\\SavedData_xmlTest_Poco.xml");
+    paths.push_back("D:\\Workspace\\XmlStorage\\SavedData_xmlTest_Poco_utf16le.xml");
+    paths.push_back("D:\\Workspace\\XmlStorage\\SavedData_xmlTest_Poco_utf16be.xml");
 
 
     // String 16 test
@@ -99,9 +103,26 @@ void basicCreateAndPrintAndEncoding()
     writer.setOptions(XMLWriter::PRETTY_PRINT);
     writer.writeNode(std::cout, pDoc);
 
-    // Try Encoding to UTF-14
-    Poco::UTF16Enc
-    writer.setEncoding("UTF-16", Poco::TextEncoding::byName("UTF-16"));
+    // Try Encoding
+    std::string encodingType = "UTF-8";
+    Poco::TextEncoding *encoding = &Poco::TextEncoding::byName(encodingType);
+
+    // Handle UTF-16 BE and LE
+    if (Poco::UTF16Encoding *temp = dynamic_cast<Poco::UTF16Encoding *>(encoding))
+    {
+        Poco::UTF16Encoding::ByteOrderType temp2 = Poco::UTF16Encoding::ByteOrderType::LITTLE_ENDIAN_BYTE_ORDER;
+        temp->setByteOrder(temp2);
+
+        DOMWriter writeToFile;
+        writeToFile.setNewLine("\n");
+        writeToFile.setOptions(XMLWriter::PRETTY_PRINT);
+        writeToFile.setEncoding("UTF-16", *temp);
+        writeToFile.writeNode(std::ofstream(paths[1]), pDoc);
+        return;
+    }
+    writer.setEncoding(encodingType, Poco::TextEncoding::byName(encodingType));
+
+    //writer.s
 
     writer.writeNode(std::cout, pDoc);
 

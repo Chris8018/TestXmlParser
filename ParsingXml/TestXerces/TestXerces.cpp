@@ -57,7 +57,7 @@ private:
 
 int main(void)
 {
-    toFile = false;
+    toFile = true;
 
     CreateAndPrint();
 
@@ -68,7 +68,7 @@ void CreateAndPrint()
 {
     std::cout << "CreateAndPrintOnConsole" << std::endl;
 
-    std::vector<std::string> paths = { "D:\\Workspace\\XmlStorage\\SavedData_xerces.xml" };
+    std::vector<std::string> paths = { "D:\\Workspace\\XmlStorage\\SavedData_xerces_utf16le.xml" };
 
     // Initialze
     try
@@ -114,7 +114,7 @@ void CreateAndPrint()
 
     // DOMLSOutput
     DOMLSOutput *theOutPut = domImpl->createLSOutput();
-    theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+    theOutPut->setEncoding(XMLString::transcode("UTF-16LE"));
 
     auto *check = theOutPut->getEncoding();
 
