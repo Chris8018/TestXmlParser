@@ -57,7 +57,7 @@ private:
 
 int main(void)
 {
-    toFile = true;
+    //toFile = true;
 
     CreateAndPrint();
 
@@ -82,9 +82,9 @@ void CreateAndPrint()
     }
 
     // DOMImpl
+    XMLCh features[3] = { (XMLCh)76U, (XMLCh)83U, (XMLCh)0U };
     DOMImplementation *domImpl =
-        DOMImplementationRegistry::getDOMImplementation(
-            XMLString::transcode("Core"));
+        DOMImplementationRegistry::getDOMImplementation(features);
 
     // DOMDoc2
     DOMDocument *domDoc2 =
@@ -93,7 +93,8 @@ void CreateAndPrint()
     // Dom Ele2 - with namespace
     DOMElement *domEle2 = domDoc2->createElement(XMLString::transcode("namespace:randomChild1"));
 
-    //domDoc2->appendChild(domEle2);
+    domDoc2->appendChild(domEle2);
+    domEle2->setTextContent(u"Ele2 Text");
 
     // DOMDoc1
     DOMDocument *domDoc1 =
@@ -105,26 +106,41 @@ void CreateAndPrint()
     domDoc1->getFirstChild()->appendChild(domEle1);
 
     // Try adding random element
-    DOMNode *movedEle2 = domDoc1->importNode(domEle2, false);
+    DOMNode *movedEle2 = domDoc1->importNode(domEle2, true);
     domEle1->appendChild(movedEle2);
 
     // Try changing movedEle2
     // Changing domEle2 does not make any different
-    dynamic_cast<DOMElement *>(movedEle2)->setAttribute(XMLString::transcode("sad:inde"), XMLString::transcode("a value in attr with namespace"));
+    //dynamic_cast<DOMElement *>(movedEle2)->setAttribute(XMLString::transcode("sad:inde"), XMLString::transcode("a value in attr with namespace"));
+    domEle2->setAttribute(XMLString::transcode("sad:inde"), XMLString::transcode("value"));
+
+    // DOMElement 3
+    DOMElement *domEle3 = domDoc2->createElement(u"rnd:Child3");
+
+    domEle2->appendChild(domEle3);
 
     // DOMLSOutput
     DOMLSOutput *theOutPut = domImpl->createLSOutput();
-    theOutPut->setEncoding(XMLString::transcode("UTF-16LE"));
+    theOutPut->setEncoding(XMLString::transcode("UTF-8"));
 
-    auto *check = theOutPut->getEncoding();
+    // Check encoding type
+    auto check = theOutPut->getEncoding();
 
     // DOMLSSerializer
     DOMLSSerializer *theSerializer = domImpl->createLSSerializer();
 
+    // Error Handler
     DOMErrorHandler *myErrorHandler = new DOMPrintErrorHandler();
-    DOMConfiguration *serializerConfig = theSerializer->getDomConfig();
-    serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, myErrorHandler);
 
+    // Configure
+    DOMConfiguration *serializerConfig = theSerializer->getDomConfig();
+    // Set Error Handler
+    serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, myErrorHandler);
+    // Set Pretty Print
+    if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+        serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+
+    // Format Target
     XMLFormatTarget *myFormTarget;
 
     if (toFile)
@@ -137,8 +153,17 @@ void CreateAndPrint()
     // Print on Console
     theSerializer->write(domDoc1, theOutPut);
 
+    // NEW LINE
+    std::cout << "\n" << std::endl;
+
     // Print on Console
-    //theSerializer->write(domDoc2, theOutPut);
+    theSerializer->write(domDoc2, theOutPut);
+
+    // Print on Console
+    theSerializer->write(domEle1, theOutPut);
+
+    // NEW LINE
+    std::cout << "\n" << std::endl;
 
     // ToString
     /*XMLCh* str = theSerializer->writeToString(domDoc1);

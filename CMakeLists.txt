@@ -25,5 +25,5 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Include sub-projects.
-add_subdirectory(lib)
 add_subdirectory(ParsingXml)
+add_subdirectory(lib)

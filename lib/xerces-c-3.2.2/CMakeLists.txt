@@ -69,7 +69,7 @@ message(STATUS "Configuring Apache Xerces-C++ version ${xerces_c_version}")
 project(xerces-c
         VERSION "${xerces_c_version}"
         LANGUAGES C CXX)
-enable_testing()
+#enable_testing()
 
 # For autotools header compatibility
 set(PACKAGE "${PROJECT_NAME}")
@@ -103,7 +103,7 @@ set(EXTRA_DIST
   NOTICE
   README
   config/pretty-make
-  doc
+  #doc
   projects
   reconf
   scripts/createBindingsFormatFromHPP.pl
@@ -154,10 +154,10 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/xercesc/util/XercesVersion.hpp.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/src/xercesc/util/XercesVersion.hpp
   @ONLY)
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/doc/style/dtd/entities.ent.in
-  ${CMAKE_CURRENT_BINARY_DIR}/doc/style/dtd/entities.ent
-  @ONLY)
+#configure_file(
+#  ${CMAKE_CURRENT_SOURCE_DIR}/doc/style/dtd/entities.ent.in
+#  ${CMAKE_CURRENT_BINARY_DIR}/doc/style/dtd/entities.ent
+#  @ONLY)
 
 # Generate pkg-config file
 set(pkgconfig-dir "${CMAKE_INSTALL_LIBDIR}/pkgconfig" CACHE STRING "pkg-config installation directory (default ${CMAKE_INSTALL_LIBDIR}/pkgconfig)")
@@ -175,10 +175,10 @@ install(
   COMPONENT "development")
 
 # Process subdirectories
-add_subdirectory(doc)
+#add_subdirectory(doc)
 add_subdirectory(src)
-add_subdirectory(tests)
-add_subdirectory(samples)
+#add_subdirectory(tests)
+#add_subdirectory(samples)
 
 # Display configuration summary
 message(STATUS "")

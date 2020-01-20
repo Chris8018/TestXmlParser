@@ -1,7 +1,7 @@
 ﻿#include "TestPocoXml.h"
 
 // Eg1
-//#include <Poco/DOM/DOMParser.h>
+#include <Poco/DOM/DOMParser.h>
 //#include <Poco/DOM/Document.h>
 //#include <Poco/DOM/NodeIterator.h>
 //#include <Poco/DOM/NodeFilter.h>
@@ -30,6 +30,8 @@ using namespace Poco::XML;
 #include <memory>
 
 #include <fstream>
+
+#include <locale>
 
 #include <typeinfo>
 
@@ -99,27 +101,27 @@ void basicCreateAndPrintAndEncoding()
 
     // Print
     DOMWriter writer;
-    writer.setNewLine("\n");
+    writer.setNewLine("\r\n");
     writer.setOptions(XMLWriter::PRETTY_PRINT);
     writer.writeNode(std::cout, pDoc);
 
     // Try Encoding
-    std::string encodingType = "UTF-8";
+    std::string encodingType = "UTF-16";
     Poco::TextEncoding *encoding = &Poco::TextEncoding::byName(encodingType);
 
     // Handle UTF-16 BE and LE
-    if (Poco::UTF16Encoding *temp = dynamic_cast<Poco::UTF16Encoding *>(encoding))
+    /*if (Poco::UTF16Encoding *temp = dynamic_cast<Poco::UTF16Encoding *>(encoding))
     {
         Poco::UTF16Encoding::ByteOrderType temp2 = Poco::UTF16Encoding::ByteOrderType::LITTLE_ENDIAN_BYTE_ORDER;
         temp->setByteOrder(temp2);
 
         DOMWriter writeToFile;
-        writeToFile.setNewLine("\n");
+        writeToFile.setNewLine("\r\n");
         writeToFile.setOptions(XMLWriter::PRETTY_PRINT);
         writeToFile.setEncoding("UTF-16", *temp);
         writeToFile.writeNode(std::ofstream(paths[1]), pDoc);
         return;
-    }
+    }*/
     writer.setEncoding(encodingType, Poco::TextEncoding::byName(encodingType));
 
     //writer.s
@@ -128,6 +130,8 @@ void basicCreateAndPrintAndEncoding()
 
     // Write to a file
     std::ofstream str(paths[0]);
+
+    DOMParser parser;
 
     DOMWriter writeToFile;
     writeToFile.setNewLine("\n");
