@@ -32,7 +32,10 @@ XERCES_CPP_NAMESPACE_USE
 
 #include <vector>
 
+#include <memory>
+
 void CreateAndPrint();
+void CreateAndPrintSmartPointer();
 std::string convertUTF16_UTF8(XMLCh *str);
 
 bool toFile = false;
@@ -59,7 +62,9 @@ int main(void)
 {
     //toFile = true;
 
-    CreateAndPrint();
+    //CreateAndPrint();
+
+    CreateAndPrintSmartPointer();
 
     return 0;
 }
@@ -84,11 +89,21 @@ void CreateAndPrint()
     // DOMImpl
     XMLCh features[3] = { (XMLCh)76U, (XMLCh)83U, (XMLCh)0U };
     DOMImplementation *domImpl =
-        DOMImplementationRegistry::getDOMImplementation(features);
+        DOMImplementationRegistry::getDOMImplementation(u"");
 
     // DOMDoc2
     DOMDocument *domDoc2 =
         domImpl->createDocument(0, 0, 0);
+
+    // Set Version
+    domDoc2->setXmlVersion(u"1.0");
+
+    // Set Stand Alone
+    domDoc2->setXmlStandalone(u"yes");
+
+    // P.I.
+    //DOMProcessingInstruction *pi1 = domDoc2->createProcessingInstruction(u"xml", u"version=\"1.0\" encoding=\"UTF-16\" standalone=\"no\"");
+    //domDoc2->appendChild(pi1);
 
     // Dom Ele2 - with namespace
     DOMElement *domEle2 = domDoc2->createElement(XMLString::transcode("namespace:randomChild1"));
@@ -99,6 +114,7 @@ void CreateAndPrint()
     // DOMDoc1
     DOMDocument *domDoc1 =
         domImpl->createDocument(0, XMLString::transcode("Hello_World"), 0);
+
 
     // Append Child
     DOMElement *domEle1 = domDoc1->createElement(XMLString::transcode("child1"));
@@ -139,6 +155,7 @@ void CreateAndPrint()
     // Set Pretty Print
     if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
         serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+    //XMLUni::ver
 
     // Format Target
     XMLFormatTarget *myFormTarget;
@@ -151,15 +168,18 @@ void CreateAndPrint()
     theOutPut->setByteStream(myFormTarget);
 
     // Print on Console
+    std::cout << "Dom Doc 1" << std::endl;
     theSerializer->write(domDoc1, theOutPut);
 
     // NEW LINE
-    std::cout << "\n" << std::endl;
+    //std::cout << "\n" << std::endl;
 
     // Print on Console
+    std::cout << "Dom Doc 2" << std::endl;
     theSerializer->write(domDoc2, theOutPut);
 
     // Print on Console
+    std::cout << "Dom Elem 1" << std::endl;
     theSerializer->write(domEle1, theOutPut);
 
     // NEW LINE
@@ -171,10 +191,139 @@ void CreateAndPrint()
     std::cout << convertUTF16_UTF8(str) << std::endl;*/
 
     // Cleanup.
-    theOutPut->release();
+    /*theOutPut->release();
     theSerializer->release();
-    domDoc1->release();
+    domDoc1->release();*/
     XMLPlatformUtils::Terminate();
+}
+
+void CreateAndPrintSmartPointer()
+{
+    std::cout << "CreateAndPrintOnConsole With Smart Pointer" << std::endl;
+
+    std::vector<std::string> paths = { "D:\\Workspace\\XmlStorage\\SavedData_xerces_utf16le.xml" };
+
+    // Initialze
+    try
+    {
+        XMLPlatformUtils::Initialize();
+    }
+    catch (const std::exception & e)
+    {
+        std::cout << e.what() << std::endl;
+        return;
+    }
+
+    // DOMImpl
+    XMLCh features[3] = { (XMLCh)76U, (XMLCh)83U, (XMLCh)0U };
+    DOMImplementation *domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+    //std::shared_ptr<DOMImplementation> domImpl(DOMImplementationRegistry::getDOMImplementation(u""));
+    //std::shared_ptr<DOMImplementation> domImpl(DOMImplementationRegistry::getDOMImplementation(u""));
+
+    // DOMDoc2
+    std::shared_ptr<DOMDocument> domDoc2(domImpl->createDocument(0, 0, 0));
+
+    // Set Version
+    domDoc2->setXmlVersion(u"1.0");
+
+    // Set Stand Alone
+    domDoc2->setXmlStandalone(u"yes");
+
+    // P.I.
+    //DOMProcessingInstruction *pi1 = domDoc2->createProcessingInstruction(u"xml", u"version=\"1.0\" encoding=\"UTF-16\" standalone=\"no\"");
+    //domDoc2->appendChild(pi1);
+
+    // Dom Ele2 - with namespace
+    std::shared_ptr<DOMElement> domEle2(domDoc2->createElement(XMLString::transcode("namespace:randomChild1")));
+
+    domDoc2->appendChild(domEle2.get());
+    domEle2->setTextContent(u"Ele2 Text");
+
+    // DOMDoc1
+    std::shared_ptr<DOMDocument> domDoc1(domImpl->createDocument(0, XMLString::transcode("Hello_World"), 0));
+
+
+    // Append Child
+    std::shared_ptr<DOMElement> domEle1(domDoc1->createElement(XMLString::transcode("child1")));
+
+    domDoc1->getFirstChild()->appendChild(domEle1.get());
+
+    // Try adding random element
+    DOMNode *movedEle2 = domDoc1->importNode(domEle2.get(), true);
+    domEle1->appendChild(movedEle2);
+
+    // Try changing movedEle2
+    // Changing domEle2 does not make any different
+    //dynamic_cast<DOMElement *>(movedEle2)->setAttribute(XMLString::transcode("sad:inde"), XMLString::transcode("a value in attr with namespace"));
+    domEle2->setAttribute(XMLString::transcode("sad:inde"), XMLString::transcode("value"));
+
+    // DOMElement 3
+    std::shared_ptr<DOMElement> domEle3(domDoc2->createElement(u"rnd:Child3"));
+
+    domEle2->appendChild(domEle3.get());
+
+    // DOMLSOutput
+    DOMLSOutput *theOutPut = domImpl->createLSOutput();
+    theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+
+    // Check encoding type
+    auto check = theOutPut->getEncoding();
+
+    // DOMLSSerializer
+    DOMLSSerializer *theSerializer = domImpl->createLSSerializer();
+
+    // Error Handler
+    DOMErrorHandler *myErrorHandler = new DOMPrintErrorHandler();
+
+    // Configure
+    DOMConfiguration *serializerConfig = theSerializer->getDomConfig();
+    // Set Error Handler
+    serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, myErrorHandler);
+    // Set Pretty Print
+    if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+        serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+    //XMLUni::ver
+
+    // Format Target
+    XMLFormatTarget *myFormTarget;
+
+    if (toFile)
+        myFormTarget = new LocalFileFormatTarget(paths[0].c_str());
+    else
+        myFormTarget = new StdOutFormatTarget();
+
+    theOutPut->setByteStream(myFormTarget);
+
+    // Print on Console
+    std::cout << "Dom Doc 1" << std::endl;
+    theSerializer->write(domDoc1.get(), theOutPut);
+
+    // NEW LINE
+    //std::cout << "\n" << std::endl;
+
+    // Print on Console
+    std::cout << "Dom Doc 2" << std::endl;
+    theSerializer->write(domDoc2.get(), theOutPut);
+
+    // Print on Console
+    std::cout << "Dom Elem 1" << std::endl;
+    theSerializer->write(domEle1.get(), theOutPut);
+
+    // NEW LINE
+    std::cout << "\n" << std::endl;
+
+    // ToString
+    /*XMLCh* str = theSerializer->writeToString(domDoc1);
+
+    std::cout << convertUTF16_UTF8(str) << std::endl;*/
+
+    // Cleanup.
+    /*theOutPut->release();
+    theSerializer->release();
+    domDoc1->release();*/
+    XMLPlatformUtils::Terminate();
+    //domImpl.reset();
 }
 
 
