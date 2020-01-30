@@ -45,27 +45,10 @@ int main()
     paths.push_back("D:\\Workspace\\XmlStorage\\SavedData_xmlTest_Poco_utf16le.xml");
     paths.push_back("D:\\Workspace\\XmlStorage\\SavedData_xmlTest_Poco_utf16be.xml");
 
-
     // String 16 test
     std::u16string str = u"1";
 
-    //std::cout << str.c_str << std::endl;
-
     basicCreateAndPrintAndEncoding();
-
-    // Eg1
-    /*std::ifstream in(“test.xml”);
-
-    InputSource src(in);
-    DOMParser parser;
-    Poco::AutoPtr<Document> pDoc = parser.parse(&src);
-    NodeIterator it(pDoc, NodeFilter::SHOW_ELEMENTS);
-    Node *pNode = it.nextNode();
-    while (pNode)
-    {
-        std::cout << pNode->nodeName() << ":" << pNode->nodeValue() << std::endl;
-        pNode = it.nextNode();
-    }*/
 
     return 0;
 }
@@ -87,7 +70,10 @@ void basicCreateAndPrintAndEncoding()
 
     // Child Node
     AutoPtr<Element> pChild1 = pDoc->createElement("child1");
-    AutoPtr<Text> pText1 = pDoc->createTextNode("text1");pChild1->appendChild(pText1);
+
+    AutoPtr<Text> pText1 = pDoc->createTextNode("text1");
+    pChild1->appendChild(pText1);
+
     pRoot->appendChild(pChild1);
 
     // Child Node
