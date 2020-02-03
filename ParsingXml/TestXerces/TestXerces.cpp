@@ -62,9 +62,9 @@ int main(void)
 {
     //toFile = true;
 
-    //CreateAndPrint();
+    CreateAndPrint();
 
-    CreateAndPrintSmartPointer();
+    //CreateAndPrintSmartPointer();
 
     return 0;
 }
@@ -121,6 +121,16 @@ void CreateAndPrint()
 
     domDoc1->getFirstChild()->appendChild(domEle1);
 
+    // DOMElement 5
+    DOMElement *domEle5 = domDoc1->createElement(u"ELEMENT5");
+
+    domEle1->appendChild(domEle5);
+
+    // DOMElement 5
+    DOMElement *domEle6 = domDoc1->createElement(u"ELEMENT6");
+
+    domEle5->appendChild(domEle6);
+
     // Try adding random element
     DOMNode *movedEle2 = domDoc1->importNode(domEle2, true);
     domEle1->appendChild(movedEle2);
@@ -134,6 +144,11 @@ void CreateAndPrint()
     DOMElement *domEle3 = domDoc2->createElement(u"rnd:Child3");
 
     domEle2->appendChild(domEle3);
+
+    // DOMElement 4 - Insert Before (1 node above the new Element)
+    DOMElement *domEle4 = domDoc1->createElement(u"ELEMENT4");
+
+    domEle5->insertBefore(domEle4, domEle6);
 
     // DOMLSOutput
     DOMLSOutput *theOutPut = domImpl->createLSOutput();
@@ -184,6 +199,10 @@ void CreateAndPrint()
 
     // NEW LINE
     std::cout << "\n" << std::endl;
+
+    // Try Has Child
+    //domDoc1->getFirstChild()->getChildNodes()->;
+    //domDoc1->getc
 
     // ToString
     /*XMLCh* str = theSerializer->writeToString(domDoc1);

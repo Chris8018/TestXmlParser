@@ -24,6 +24,7 @@ private:
     std::string _encoding;
 public:
     XmlDocument();
+    //XmlDocument();
     virtual ~XmlDocument();
 
     //
@@ -31,22 +32,38 @@ public:
 
 class XmlElement
 {
+    friend XmlElement;
 private:
-    std::shared_ptr<xercesc_3_2::DOMNode> _parentNode;
+    std::shared_ptr<xercesc_3_2::DOMDocument> _ownerDocument;
+
+    //std::shared_ptr<xercesc_3_2::DOMNode> _parentNode;
     std::shared_ptr<xercesc_3_2::DOMElement> _xmlElement;
 
     bool _assigned = false;
+
+    //void SetDomNodeParent(std::shared_ptr<xercesc_3_2::DOMNode> parent);
+
+    void RemoveOwnerDocument();
+    void SetXmlElement(
+        std::shared_ptr<xercesc_3_2::DOMElement> otherElement);
+
 public:
-    XmlElement(std::shared_ptr<xercesc_3_2::DOMDocument> emptyDOMDocument, std::string name);
+    XmlElement(std::string name);
+    //XmlElement(std::)
     virtual ~XmlElement();
 
     bool IsAssigned() const;
 
     void SetText(const std::string &text);
-    void SetAttribute(const std::string &key, const std::string &value);
+    void SetAttribute(const std::string &name, const std::string &value);
     void SetAttributes(const std::map<std::string, std::string> &attributes);
 
-    void SetParentNode(std::shared_ptr<xercesc_3_2::DOMNode> parentNode);
+    /*void SetElementToDomNodeAndChangeDomNodeParent(std::shared_ptr<xercesc_3_2::DOMNode> parentNode);*/
+
+    void AddChildXmlElement(std::shared_ptr<XmlElement> child);
+    void InsertChildElementBeforeElement(
+        std::shared_ptr<XmlElement> child,
+        std::shared_ptr<XmlElement> element);
 
     std::string ToString() const;
 
@@ -90,7 +107,12 @@ public:
 
     std::shared_ptr<xercesc_3_2::DOMDocument> CreateEmptyDocument() const;
 
-    //
+    std::shared_ptr<xercesc_3_2::DOMElement> CreateElementFromDocument(std::shared_ptr<xercesc_3_2::DOMDocument> xmlDoc, const std::string &name);
+
+    std::shared_ptr<xercesc_3_2::DOMElement> CopyElementToDocumentOfElement(
+        std::shared_ptr<xercesc_3_2::DOMElement> element,
+        std::shared_ptr<xercesc_3_2::DOMElement> targetElement,
+        bool deep = false);
 };
 
 class XmlLib
