@@ -17,13 +17,19 @@ namespace xercesc_3_2
     // TODO: Add more?
 }
 
+class XmlElement;
+
 class XmlDocument
 {
 private:
     std::shared_ptr<xercesc_3_2::DOMDocument> _xmlDocument;
     std::string _encoding;
 public:
-    XmlDocument();
+    XmlDocument(
+        std::shared_ptr<XmlElement> rootElement,
+        const std::string &version,
+        const std::string &encoding,
+        const bool &standalone);
     //XmlDocument();
     virtual ~XmlDocument();
 
@@ -33,6 +39,7 @@ public:
 class XmlElement
 {
     friend XmlElement;
+    friend XmlDocument;
 private:
     std::shared_ptr<xercesc_3_2::DOMDocument> _ownerDocument;
 

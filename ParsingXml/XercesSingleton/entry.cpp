@@ -15,14 +15,32 @@ int main()
 
 // XmlDocument------------------------------------------------------
 
-XmlDocument::XmlDocument()
+XmlDocument::XmlDocument(
+    std::shared_ptr<XmlElement> rootElement,
+    const std::string &version,
+    const std::string &encoding,
+    const bool &standalone)
 {
-    //
+    if (rootElement->IsAssigned())
+    {
+        throw std::exception("Is Assigned!!!!");
+    }
+
+    this->_xmlDocument = rootElement->_ownerDocument;
+
+    rootElement->RemoveOwnerDocument();
+
+    this->_xmlDocument
+        ->setXmlVersion(xercesc::XMLString::transcode(version.c_str()));
+
+    this->_encoding = encoding;
+
+    this->_xmlDocument->setXmlStandalone(standalone);
 }
 
 XmlDocument::~XmlDocument()
 {
-    //
+    this->_xmlDocument.reset();
 }
 
 //------------------------------------------------------------------
