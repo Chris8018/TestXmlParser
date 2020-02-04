@@ -155,7 +155,7 @@ void XmlElement::AddChildXmlElement(std::shared_ptr<XmlElement> child)
     this->_xmlElement->appendChild(child->_xmlElement.get());
 }
 
-void XmlElement::InsertChildElementBeforeElement(std::shared_ptr<XmlElement> child, std::shared_ptr<XmlElement> element)
+void XmlElement::InsertChildElementBeforeOtherElement(std::shared_ptr<XmlElement> child, std::shared_ptr<XmlElement> element)
 {
     if (this->IsAssigned())
     {

@@ -17,9 +17,14 @@ namespace xercesc_3_2
     // TODO: Add more?
 }
 
+class OtxDataType
+{
+    //
+};
+
 class XmlElement;
 
-class XmlDocument
+class XmlDocument : public OtxDataType
 {
 private:
     std::shared_ptr<xercesc_3_2::DOMDocument> _xmlDocument;
@@ -36,7 +41,7 @@ public:
     //
 };
 
-class XmlElement
+class XmlElement : public OtxDataType
 {
     friend XmlElement;
     friend XmlDocument;
@@ -68,7 +73,7 @@ public:
     /*void SetElementToDomNodeAndChangeDomNodeParent(std::shared_ptr<xercesc_3_2::DOMNode> parentNode);*/
 
     void AddChildXmlElement(std::shared_ptr<XmlElement> child);
-    void InsertChildElementBeforeElement(
+    void InsertChildElementBeforeOtherElement(
         std::shared_ptr<XmlElement> child,
         std::shared_ptr<XmlElement> element);
 
