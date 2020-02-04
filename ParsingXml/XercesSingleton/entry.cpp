@@ -113,36 +113,8 @@ void XmlElement::SetAttributes(const std::map<std::string, std::string> &attribu
     }
 }
 
-//void XmlElement::SetElementToDomNodeAndChangeDomNodeParent(std::shared_ptr<xercesc::DOMNode> parent)
-//{
-//    if (auto documentNode = std::dynamic_pointer_cast<xercesc::DOMDocument>(parent))
-//    {
-//        //documentNode->remo
-//    }
-//    else if (auto elementNode = std::dynamic_pointer_cast<xercesc::DOMElement>(parent))
-//    {
-//        //
-//    }
-//
-//    this->SetDomNodeParent(parent);
-//}
-
-//void XmlElement::SetDomNodeParent(std::shared_ptr<xercesc::DOMNode> parent)
-//{
-//    if (_parentNode != nullptr)
-//        _parentNode.reset(parent.get());
-//}
-//
-//std::string XmlElement::ToString() const
-//{
-//    return "";
-//}
-
 void XmlElement::AddChildXmlElement(std::shared_ptr<XmlElement> child)
 {
-    //parent->_xmlElement->be
-    //_ownerDocument->find
-    //
     if (child->IsAssigned())
     {
         throw new std::exception("Has been added to an element.");
@@ -155,7 +127,7 @@ void XmlElement::AddChildXmlElement(std::shared_ptr<XmlElement> child)
     this->_xmlElement->appendChild(child->_xmlElement.get());
 }
 
-void XmlElement::InsertChildElementBeforeOtherElement(std::shared_ptr<XmlElement> child, std::shared_ptr<XmlElement> element)
+void XmlElement::InsertChildXmlElmentBefore(std::shared_ptr<XmlElement> child, std::shared_ptr<XmlElement> element)
 {
     if (this->IsAssigned())
     {
@@ -180,14 +152,44 @@ std::string XmlElement::ToString() const
 
 // XmlLib-----------------------------------------------------------
 
-std::shared_ptr<XmlDocument> XmlLib::CreateXmlDocument(XmlElement &rootNode, const std::string &version, const std::string &encoding, const bool &standalone)
+std::shared_ptr<XmlDocument> XmlLib::CreateXmlDocument(std::shared_ptr<XmlElement> rootNode, const std::string &version, const std::string &encoding, const bool &standalone)
 {
-    return nullptr;
+    std::string _version = CorrectingXmlVersion(version);
+    return std::make_shared<XmlDocument>(&rootNode, _version, encoding, standalone);
+}
+
+std::string XmlLib::CorrectingXmlVersion(const std::string &encoding)
+{
+    std::string result = encoding;
+
+    if (result != "1.0" || result != "1.1")
+    {
+        // TODO: Write Log Warning
+        result = "1.0"; // Separate to Macro
+    }
+
+    return result;
 }
 
 std::shared_ptr<XmlElement> XmlLib::CreateXmlElement(const std::string &name, const std::string &text, const std::map<std::string, std::string> &attributes)
 {
-    return nullptr;
+    std::shared_ptr<XmlElement> element = std::make_shared<XmlElement>(name);
+
+    if (text != "")
+        element->SetText(text);
+
+    if (attributes.size() > 0)
+        element->SetAttributes(attributes);
+
+    return element;
+}
+
+void XmlLib::AddXmlChildElement(std::shared_ptr<XmlElement> parent, std::shared_ptr<XmlElement> child, std::shared_ptr<XmlElement> insertBefore)
+{
+    if (insertBefore == nullptr)
+        parent->AddChildXmlElement(child);
+    else
+        parent->InsertChildXmlElmentBefore(child, insertBefore);
 }
 
 //------------------------------------------------------------------

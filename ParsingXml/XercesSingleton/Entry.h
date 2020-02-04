@@ -70,10 +70,8 @@ public:
     void SetAttribute(const std::string &name, const std::string &value);
     void SetAttributes(const std::map<std::string, std::string> &attributes);
 
-    /*void SetElementToDomNodeAndChangeDomNodeParent(std::shared_ptr<xercesc_3_2::DOMNode> parentNode);*/
-
     void AddChildXmlElement(std::shared_ptr<XmlElement> child);
-    void InsertChildElementBeforeOtherElement(
+    void InsertChildXmlElmentBefore(
         std::shared_ptr<XmlElement> child,
         std::shared_ptr<XmlElement> element);
 
@@ -89,24 +87,10 @@ class XercesAdapter
     //friend XmlElement;
 private:
     XercesAdapter();
-    //static void Initialize();
-    //static void InitializeAdapter();
+
     void InitializeDomImplementation();
 
     void Clear();
-
-    //static std::shared_ptr<XercesAdapter> _adapter;
-    //static XercesAdapter * _adapter;
-
-    /*static shared_ptr<Demo> getInstance() {
-        static shared_ptr<Demo> d(new Demo);
-        return d;
-    }*/
-
-    /*static Demo &getInstance() {
-        static Demo d;
-        return d;
-    }*/
 
     std::shared_ptr<xercesc_3_2::DOMImplementation> _domImpl;
 public:
@@ -130,9 +114,12 @@ public:
 class XmlLib
 {
 private:
+    static std::string CorrectingXmlVersion(const std::string &encoding);
 public:
-    static std::shared_ptr<XmlDocument> CreateXmlDocument(XmlElement &rootNode, const std::string &version, const std::string &encoding, const bool &standalone);
+    static std::shared_ptr<XmlDocument> CreateXmlDocument(std::shared_ptr<XmlElement> rootNode, const std::string &version, const std::string &encoding, const bool &standalone);
     static std::shared_ptr<XmlElement> CreateXmlElement(const std::string &name, const std::string &text, const std::map<std::string, std::string> &attributes);
+    
+    static void AddXmlChildElement(std::shared_ptr<XmlElement> parent, std::shared_ptr<XmlElement> child, std::shared_ptr<XmlElement> insertBefore);
 };
 
 #endif // !XercesSingleton_H
