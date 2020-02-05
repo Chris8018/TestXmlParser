@@ -33,6 +33,8 @@ using xercesc::DOMError;
 using xercesc::XMLString;
 using xercesc::XMLUni;
 
+using xercesc::XMLFormatTarget;
+
 using xercesc::StdOutFormatTarget;
 using xercesc::LocalFileFormatTarget;
 
@@ -319,11 +321,32 @@ bool XercesXmlWriter::CanSetPrettyPrint()
 {
     return _configuration->canSetParameter(PRETTY_PRINT, true);
 }
+
 void XercesXmlWriter::SetPrettyPrintFormat()
 {
     if (CanSetPrettyPrint())
         _configuration->setParameter(PRETTY_PRINT, true);
 }
+
+ToFileWriter::ToFileWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl, std::string path) : XercesXmlWriter(domImpl)
+{
+    _formatTarget = std::shared_ptr<XMLFormatTarget>(new LocalFileFormatTarget(path.c_str()));
+
+    _outStream->setByteStream(_formatTarget.get());
+}
+
+ToFileWriter::~ToFileWriter()
+{
+    if (_formatTarget != nullptr)
+        _formatTarget.reset();
+}
+
+void ToFileWriter::Write(std::shared_ptr<DOMNode> domNode)
+{
+    _writer->write(domNode.get(), _outStream.get());
+}
+
+
 
 XercesAdapter::XercesAdapter()
 {

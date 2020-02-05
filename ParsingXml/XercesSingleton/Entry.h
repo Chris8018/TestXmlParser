@@ -23,6 +23,8 @@ namespace xercesc_3_2
     class DOMConfiguration;
 
     class DOMLSOutput;
+
+    class XMLFormatTarget;
     //class DOMErrorHandler;
     // TODO: Add more?
 }
@@ -105,19 +107,19 @@ public:
 
 };
 
-class XercesToStringWriter;
-class XercesToFileWriter;
+class ToStringWriter;
+class ToFileWriter;
 
 class XercesXmlWriter
 {
-    friend XercesToStringWriter;
-    friend XercesToFileWriter;
+    friend ToStringWriter;
+    friend ToFileWriter;
 private:
     std::shared_ptr<xercesc::DOMLSSerializer> _writer;
 
-    std::shared_ptr<xercesc::DOMConfiguration> _configuration;
-
     std::shared_ptr<xercesc::DOMLSOutput> _outStream;
+
+    std::shared_ptr<xercesc::DOMConfiguration> _configuration;
 
     std::shared_ptr<xercesc::DOMErrorHandler> _errorHandler;
 
@@ -128,23 +130,36 @@ private:
     
     bool CanSetPrettyPrint();
     void SetPrettyPrintFormat();
+
 public:
     XercesXmlWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl);
     virtual ~XercesXmlWriter();
 
     void SetEncoding(const std::string &encoding = "UTF-8");
 
-    virtual void Print(std::shared_ptr<xercesc::DOMNode> domNode) = 0;
+    virtual void Write(std::shared_ptr<xercesc::DOMNode> domNode) = 0;
 };
 
-class XercesToStringWriter : public XercesXmlWriter
+class ToStringWriter : public XercesXmlWriter
 {
-    //
+private:
+
+public:
+    ToStringWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl);
+    virtual ~ToStringWriter();
+
+    void Write(std::shared_ptr<xercesc::DOMNode> domNode) override;
 };
 
-class XercesToFileWriter
+class ToFileWriter : public XercesXmlWriter
 {
-    //
+private:
+    std::shared_ptr<xercesc::XMLFormatTarget> _formatTarget;
+public:
+    ToFileWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl, std::string path);
+    virtual ~ToFileWriter();
+
+    void Write(std::shared_ptr<xercesc::DOMNode> domNode) override;
 };
 
 class XercesAdapter
