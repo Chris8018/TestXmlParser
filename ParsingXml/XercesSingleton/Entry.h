@@ -107,13 +107,8 @@ public:
 
 };
 
-class ToStringWriter;
-class ToFileWriter;
-
 class XercesXmlWriter
 {
-    friend ToStringWriter;
-    friend ToFileWriter;
 private:
     std::shared_ptr<xercesc::DOMLSSerializer> _writer;
 
@@ -137,29 +132,7 @@ public:
 
     void SetEncoding(const std::string &encoding = "UTF-8");
 
-    virtual void Write(std::shared_ptr<xercesc::DOMNode> domNode) = 0;
-};
-
-class ToStringWriter : public XercesXmlWriter
-{
-private:
-
-public:
-    ToStringWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl);
-    virtual ~ToStringWriter();
-
-    void Write(std::shared_ptr<xercesc::DOMNode> domNode) override;
-};
-
-class ToFileWriter : public XercesXmlWriter
-{
-private:
-    std::shared_ptr<xercesc::XMLFormatTarget> _formatTarget;
-public:
-    ToFileWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl, std::string path);
-    virtual ~ToFileWriter();
-
-    void Write(std::shared_ptr<xercesc::DOMNode> domNode) override;
+    std::string Write(std::shared_ptr<xercesc::DOMNode> domNode);
 };
 
 class XercesAdapter

@@ -328,22 +328,16 @@ void XercesXmlWriter::SetPrettyPrintFormat()
         _configuration->setParameter(PRETTY_PRINT, true);
 }
 
-ToFileWriter::ToFileWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl, std::string path) : XercesXmlWriter(domImpl)
+std::string XercesXmlWriter::Write(std::shared_ptr<DOMNode> domNode)
 {
-    _formatTarget = std::shared_ptr<XMLFormatTarget>(new LocalFileFormatTarget(path.c_str()));
+    std::shared_ptr<XMLCh> xmlChs(_writer->writeToString(domNode.get()));
 
-    _outStream->setByteStream(_formatTarget.get());
-}
+    std::shared_ptr<char> chars(XMLString::transcode(xmlChs.get()));
 
-ToFileWriter::~ToFileWriter()
-{
-    if (_formatTarget != nullptr)
-        _formatTarget.reset();
-}
+    std::string str;
+    str.push_back(*chars);
 
-void ToFileWriter::Write(std::shared_ptr<DOMNode> domNode)
-{
-    _writer->write(domNode.get(), _outStream.get());
+    return str;
 }
 
 
