@@ -1,6 +1,8 @@
 #ifndef XercesSingleton_H
 #define XercesSingleton_H
 
+#include <xercesc/dom/DOMErrorHandler.hpp>
+
 #include <memory>
 
 #include <string>
@@ -14,8 +16,17 @@ namespace xercesc_3_2
     class DOMDocument;
     class DOMElement;
     class DOMNode;
+
+    class DOMError;
+
+    class DOMLSSerializer;
+    class DOMConfiguration;
+
+    class DOMLSOutput;
+    //class DOMErrorHandler;
     // TODO: Add more?
 }
+namespace xercesc = xercesc_3_2;
 
 class OtxDataType
 {
@@ -27,7 +38,7 @@ class XmlElement;
 class XmlDocument : public OtxDataType
 {
 private:
-    std::shared_ptr<xercesc_3_2::DOMDocument> _xmlDocument;
+    std::shared_ptr<xercesc::DOMDocument> _xmlDocument;
     std::string _encoding;
 public:
     XmlDocument(
@@ -46,10 +57,10 @@ class XmlElement : public OtxDataType
     friend XmlElement;
     friend XmlDocument;
 private:
-    std::shared_ptr<xercesc_3_2::DOMDocument> _ownerDocument;
+    std::shared_ptr<xercesc::DOMDocument> _ownerDocument;
 
     //std::shared_ptr<xercesc_3_2::DOMNode> _parentNode;
-    std::shared_ptr<xercesc_3_2::DOMElement> _xmlElement;
+    std::shared_ptr<xercesc::DOMElement> _xmlElement;
 
     bool _assigned = false;
 
@@ -57,7 +68,7 @@ private:
 
     void RemoveOwnerDocument();
     void SetXmlElement(
-        std::shared_ptr<xercesc_3_2::DOMElement> otherElement);
+        std::shared_ptr<xercesc::DOMElement> otherElement);
 
 public:
     XmlElement(std::string name);
@@ -70,8 +81,8 @@ public:
     void SetAttribute(const std::string &name, const std::string &value);
     void SetAttributes(const std::map<std::string, std::string> &attributes);
 
-    void AddChildXmlElement(std::shared_ptr<XmlElement> child);
-    void InsertChildXmlElmentBefore(
+    void AddChild(std::shared_ptr<XmlElement> child);
+    void InsertChildBefore(
         std::shared_ptr<XmlElement> child,
         std::shared_ptr<XmlElement> element);
 
@@ -79,6 +90,61 @@ public:
 
     //bool operator==(...) const;
     //bool IsEqual(...) const;
+};
+
+class DOMPrintErrorHandler : public xercesc::DOMErrorHandler
+{
+public:
+
+    DOMPrintErrorHandler();
+    virtual ~DOMPrintErrorHandler();
+
+    /** @name The error handler interface */
+    bool HandleError(const xercesc::DOMError &domError);
+    void ResetErrors();
+
+};
+
+class XercesToStringWriter;
+class XercesToFileWriter;
+
+class XercesXmlWriter
+{
+    friend XercesToStringWriter;
+    friend XercesToFileWriter;
+private:
+    std::shared_ptr<xercesc::DOMLSSerializer> _writer;
+
+    std::shared_ptr<xercesc::DOMConfiguration> _configuration;
+
+    std::shared_ptr<xercesc::DOMLSOutput> _outStream;
+
+    std::shared_ptr<xercesc::DOMErrorHandler> _errorHandler;
+
+    void Init();
+    void Clear();
+
+    void SetErrorHandler();
+    
+    bool CanSetPrettyPrint();
+    void SetPrettyPrintFormat();
+public:
+    XercesXmlWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl);
+    virtual ~XercesXmlWriter();
+
+    void SetEncoding(const std::string &encoding = "UTF-8");
+
+    virtual void Print(std::shared_ptr<xercesc::DOMNode> domNode) = 0;
+};
+
+class XercesToStringWriter : public XercesXmlWriter
+{
+    //
+};
+
+class XercesToFileWriter
+{
+    //
 };
 
 class XercesAdapter
@@ -92,7 +158,7 @@ private:
 
     void Clear();
 
-    std::shared_ptr<xercesc_3_2::DOMImplementation> _domImpl;
+    std::shared_ptr<xercesc::DOMImplementation> _domImpl;
 public:
     XercesAdapter(XercesAdapter const &) = delete;
     XercesAdapter& operator=(XercesAdapter const &) = delete;
@@ -101,14 +167,17 @@ public:
 
     static XercesAdapter& GetInstance();
 
-    std::shared_ptr<xercesc_3_2::DOMDocument> CreateEmptyDocument() const;
+    std::shared_ptr<xercesc::DOMDocument> CreateEmptyDocument() const;
 
-    std::shared_ptr<xercesc_3_2::DOMElement> CreateElementFromDocument(std::shared_ptr<xercesc_3_2::DOMDocument> xmlDoc, const std::string &name);
+    std::shared_ptr<xercesc::DOMElement> CreateElementFromDocument(std::shared_ptr<xercesc::DOMDocument> xmlDoc, const std::string &name);
 
-    std::shared_ptr<xercesc_3_2::DOMElement> CopyElementToDocumentOfElement(
-        std::shared_ptr<xercesc_3_2::DOMElement> element,
-        std::shared_ptr<xercesc_3_2::DOMElement> targetElement,
+    std::shared_ptr<xercesc::DOMElement> CopyElementToDocumentOfElement(
+        std::shared_ptr<xercesc::DOMElement> element,
+        std::shared_ptr<xercesc::DOMElement> targetElement,
         bool deep = false);
+
+    std::shared_ptr<XMLCh> StringToXmlCh(const std::string &str);
+    std::string XmlChToString(const std::shared_ptr<XMLCh> xmlCh);
 };
 
 class XmlLib

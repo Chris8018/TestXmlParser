@@ -53,8 +53,8 @@ public:
 
 private:
     /* Unimplemented constructors and operators */
-    DOMPrintErrorHandler(const DOMErrorHandler &);
-    void operator=(const DOMErrorHandler &);
+    //DOMPrintErrorHandler(const DOMErrorHandler &);
+    //void operator=(const DOMErrorHandler &);
 
 };
 
@@ -150,69 +150,73 @@ void CreateAndPrint()
 
     domEle5->insertBefore(domEle4, domEle6);
 
-    // DOMLSOutput
+    //// DOMLSOutput-----------------------------------------
     DOMLSOutput *theOutPut = domImpl->createLSOutput();
     theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+    ////-----------------------------------------------------
 
     // Check encoding type
     auto check = theOutPut->getEncoding();
 
-    // DOMLSSerializer
+    //// DOMLSSerializer-------------------------------------
     DOMLSSerializer *theSerializer = domImpl->createLSSerializer();
+    ////-----------------------------------------------------
 
-    // Error Handler
+    //// Error Handler---------------------------------------
     DOMErrorHandler *myErrorHandler = new DOMPrintErrorHandler();
+    ////-----------------------------------------------------
 
-    // Configure
+    //// Configure-------------------------------------------
     DOMConfiguration *serializerConfig = theSerializer->getDomConfig();
     // Set Error Handler
     serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, myErrorHandler);
     // Set Pretty Print
     if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
         serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-    //XMLUni::ver
+    ////-----------------------------------------------------
 
-    // Format Target
+    //// Format Target---------------------------------------
     XMLFormatTarget *myFormTarget;
 
     if (toFile)
         myFormTarget = new LocalFileFormatTarget(paths[0].c_str());
     else
         myFormTarget = new StdOutFormatTarget();
+    ////-----------------------------------------------------
 
+    ////-----------------------------------------------------
     theOutPut->setByteStream(myFormTarget);
+    ////-----------------------------------------------------
 
     // Print on Console
     std::cout << "Dom Doc 1" << std::endl;
     theSerializer->write(domDoc1, theOutPut);
 
-    // NEW LINE
-    //std::cout << "\n" << std::endl;
+    std::cout << "\n";
+    std::cout << "\n";
+    std::cout << "\n";
 
     // Print on Console
     std::cout << "Dom Doc 2" << std::endl;
     theSerializer->write(domDoc2, theOutPut);
 
+    std::cout << "\n";
+    std::cout << "\n";
+    std::cout << "\n";
+
     // Print on Console
     std::cout << "Dom Elem 1" << std::endl;
     theSerializer->write(domEle1, theOutPut);
 
-    // NEW LINE
-    std::cout << "\n" << std::endl;
-
-    // Try Has Child
-    //domDoc1->getFirstChild()->getChildNodes()->;
-    //domDoc1->getc
-
-    // ToString
-    /*XMLCh* str = theSerializer->writeToString(domDoc1);
-
-    std::cout << convertUTF16_UTF8(str) << std::endl;*/
+    std::cout << "\n";
+    std::cout << "\n";
+    std::cout << "\n";
 
     // Cleanup.
-    /*theOutPut->release();
+    theOutPut->release();
     theSerializer->release();
-    domDoc1->release();*/
+    domDoc1->release();
+    domDoc2->release();
     XMLPlatformUtils::Terminate();
 }
 
