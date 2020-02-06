@@ -213,9 +213,11 @@ void CreateAndPrint()
     std::cout << "\n";
 
     // Cleanup.
-    theOutPut->release();
     theSerializer->release();
+    theOutPut->release();
+    
     domDoc1->release();
+    domEle1->release();
     domDoc2->release();
     XMLPlatformUtils::Terminate();
 }

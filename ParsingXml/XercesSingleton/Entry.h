@@ -40,14 +40,14 @@ class XmlElement;
 class XmlDocument : public OtxDataType
 {
 private:
-    std::shared_ptr<xercesc::DOMDocument> _xmlDocument;
-    std::string _encoding;
+   /* std::shared_ptr<xercesc::DOMDocument> _xmlDocument;
+    std::string _encoding;*/
 public:
-    XmlDocument(
+    /*XmlDocument(
         std::shared_ptr<XmlElement> rootElement,
         const std::string &version,
         const std::string &encoding,
-        const bool &standalone);
+        const bool &standalone);*/
     //XmlDocument();
     virtual ~XmlDocument();
 
@@ -109,35 +109,35 @@ public:
 class XercesXmlWriter
 {
 private:
-    std::shared_ptr<xercesc::DOMLSSerializer> _writer;
+    //std::shared_ptr<xercesc::DOMLSSerializer> _writer;
 
-    std::shared_ptr<xercesc::DOMLSOutput> _outStream;
+    //std::shared_ptr<xercesc::DOMLSOutput> _outStream;
 
-    std::shared_ptr<xercesc::DOMConfiguration> _configuration;
+    //std::shared_ptr<xercesc::DOMConfiguration> _configuration;
 
-    std::shared_ptr<xercesc::DOMErrorHandler> _errorHandler;
+    //std::shared_ptr<xercesc::DOMErrorHandler> _errorHandler;
 
-    void Init();
-    void Clear();
+    //void Init();
+    //void Clear();
 
-    void SetErrorHandler();
-    
-    bool CanSetPrettyPrint();
-    void SetPrettyPrintFormat();
+    //void SetErrorHandler();
+    //
+    //bool CanSetPrettyPrint();
+    //void SetPrettyPrintFormat();
 
 public:
-    XercesXmlWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl);
+    //XercesXmlWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl);
     virtual ~XercesXmlWriter();
 
-    void SetEncoding(const std::string &encoding = "UTF-8");
+    //void SetEncoding(const std::string &encoding = "UTF-8");
 
-    std::string Write(std::shared_ptr<xercesc::DOMNode> domNode);
+    //std::string Write(std::shared_ptr<xercesc::DOMNode> domNode);
 };
 
 class XercesXmlChConverter
 {
 public:
-
+    //
 };
 
 class XercesAdapter
@@ -145,12 +145,12 @@ class XercesAdapter
 private:
     XercesAdapter();
 
-    void InitializeDomImplementation();
+    //void InitializeDomImplementation();
 
-    void Clear();
+    //void Clear();
 
-    std::shared_ptr<xercesc::DOMImplementation> _domImpl;
-    std::shared_ptr<XercesXmlWriter> _xmlWriter;
+    /*std::shared_ptr<xercesc::DOMImplementation> _domImpl;
+    std::shared_ptr<XercesXmlWriter> _xmlWriter;*/
 public:
     XercesAdapter(XercesAdapter const &) = delete;
     XercesAdapter& operator=(XercesAdapter const &) = delete;
@@ -159,30 +159,31 @@ public:
 
     static XercesAdapter& GetInstance();
 
-    std::shared_ptr<xercesc::DOMDocument> CreateEmptyDocument() const;
+    //std::shared_ptr<xercesc::DOMDocument> CreateEmptyDocument() const;
 
-    std::shared_ptr<xercesc::DOMElement> CreateElementFromDocument(std::shared_ptr<xercesc::DOMDocument> xmlDoc, const std::string &name);
+    //std::shared_ptr<xercesc::DOMElement> CreateElementFromDocument(std::shared_ptr<xercesc::DOMDocument> xmlDoc, const std::string &name);
 
-    std::shared_ptr<xercesc::DOMElement> MoveElementToDifferentOwnerDocument(
-        std::shared_ptr<xercesc::DOMElement> element,
-        std::shared_ptr<xercesc::DOMElement> targetElement,
-        bool deep = false);
+    //std::shared_ptr<xercesc::DOMElement> MoveElementToDifferentOwnerDocument(
+    //    std::shared_ptr<xercesc::DOMElement> element,
+    //    std::shared_ptr<xercesc::DOMElement> targetElement,
+    //    bool deep = false);
 
+    // TODO: Might change this
     std::shared_ptr<XMLCh> StringToXmlCh(const std::string &str);
     std::string XmlChToString(const std::shared_ptr<XMLCh> xmlCh);
 
-    std::string NodeToString(std::shared_ptr<xercesc::DOMNode> domNode, const std::string &encoding = "UTF-8");
+    //std::string NodeToString(std::shared_ptr<xercesc::DOMNode> domNode, const std::string &encoding = "UTF-8");
 };
 
 class XmlLib
 {
 private:
-    static std::string CorrectingXmlVersion(const std::string &encoding);
+    static std::string GetSupportXmlVersion(const std::string &encoding);
 public:
-    static std::shared_ptr<XmlDocument> CreateXmlDocument(std::shared_ptr<XmlElement> rootNode, const std::string &version, const std::string &encoding, const bool &standalone);
-    static std::shared_ptr<XmlElement> CreateXmlElement(const std::string &name, const std::string &text, const std::map<std::string, std::string> &attributes);
-    
-    static void AddXmlChildElement(std::shared_ptr<XmlElement> parent, std::shared_ptr<XmlElement> child, std::shared_ptr<XmlElement> insertBefore);
+    //static std::shared_ptr<XmlDocument> CreateXmlDocument(std::shared_ptr<XmlElement> rootNode, const std::string &version, const std::string &encoding, const bool &standalone);
+    //static std::shared_ptr<XmlElement> CreateXmlElement(const std::string &name, const std::string &text, const std::map<std::string, std::string> &attributes);
+    //
+    //static void AddXmlChildElement(std::shared_ptr<XmlElement> parent, std::shared_ptr<XmlElement> child, std::shared_ptr<XmlElement> insertBefore);
 };
 
 #endif // !XercesSingleton_H
