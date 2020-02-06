@@ -48,7 +48,7 @@ public:
     ~DOMPrintErrorHandler() {};
 
     /** @name The error handler interface */
-    bool handleError(const DOMError &domError);
+    bool handleError(const DOMError &domError) override;
     void resetErrors() {};
 
 private:
@@ -212,12 +212,27 @@ void CreateAndPrint()
     std::cout << "\n";
     std::cout << "\n";
 
+    DOMDocument *doc = 0;
+
     // Cleanup.
+    //theOutPut->release();
     theSerializer->release();
     theOutPut->release();
-    
+
     domDoc1->release();
-    domEle1->release();
+
+    if (doc == NULL)
+    {
+        std::cout << "Doc is NULL" << std::endl;
+    }
+
+    if (domDoc1 == nullptr)
+    {
+        std::cout << "Doc 1 is NULL" << std::endl;
+    }
+
+    //domDoc1->release();
+    //delete domDoc1;
     domDoc2->release();
     XMLPlatformUtils::Terminate();
 }

@@ -10,6 +10,8 @@
 #include <vector>
 #include <map>
 
+//#include "xercesc/dom/DOM.hpp"
+
 namespace xercesc_3_2
 {
     class DOMImplementation;
@@ -30,6 +32,8 @@ namespace xercesc_3_2
 }
 namespace xercesc = xercesc_3_2;
 
+void TestCase1();
+
 class OtxDataType
 {
     //
@@ -40,14 +44,16 @@ class XmlElement;
 class XmlDocument : public OtxDataType
 {
 private:
-   /* std::shared_ptr<xercesc::DOMDocument> _xmlDocument;
-    std::string _encoding;*/
+    xercesc::DOMDocument *_xmlDocument;
+    std::string _encoding;
+
+    bool IsNotValidEncoding(const std::string &encoding) const;
 public:
-    /*XmlDocument(
+    XmlDocument(
         std::shared_ptr<XmlElement> rootElement,
         const std::string &version,
         const std::string &encoding,
-        const bool &standalone);*/
+        const bool &standalone);
     //XmlDocument();
     virtual ~XmlDocument();
 
@@ -62,15 +68,15 @@ class XmlElement : public OtxDataType
     friend XmlElement;
     friend XmlDocument;
 private:
-    /*std::shared_ptr<xercesc::DOMDocument> _ownerDocument;
+    xercesc::DOMDocument *_ownerDocument;
 
-    std::shared_ptr<xercesc::DOMElement> _xmlElement;*/
+    xercesc::DOMElement *_xmlElement;
 
-    bool _assigned;
+    bool _assigned = false;
 
-    /*void RemoveOwnerDocument();
-    void SetXmlElement(
-        std::shared_ptr<xercesc::DOMElement> otherElement);*/
+    void RemoveOwnerDocument();
+    //void SetXmlElement(
+    //    std::shared_ptr<xercesc::DOMElement> otherElement);
 
 public:
     XmlElement(std::string name);
@@ -88,7 +94,7 @@ public:
     //    std::shared_ptr<XmlElement> child,
     //    std::shared_ptr<XmlElement> element);
 
-    //std::string ToString() const;
+    std::string ToString() const;
 
     //bool operator==(...) const;
     //bool IsEqual(...) const;
@@ -101,8 +107,8 @@ public:
     virtual ~DOMPrintErrorHandler();
 
     /** @name The error handler interface */
-    bool HandleError(const xercesc::DOMError &domError);
-    void ResetErrors();
+    bool handleError(const xercesc::DOMError &domError) override;
+    void resetErrors();
 
 };
 
@@ -111,33 +117,45 @@ class XercesXmlWriter
 private:
     //std::shared_ptr<xercesc::DOMLSSerializer> _writer;
 
-    //std::shared_ptr<xercesc::DOMLSOutput> _outStream;
+    //std::shared_ptr<xercesc::DOMLSOutput> _outStream; // DON'T NEED
 
-    //std::shared_ptr<xercesc::DOMConfiguration> _configuration;
+    //std::shared_ptr<xercesc::DOMConfiguration> _configuration; // DON'T NEED
 
     //std::shared_ptr<xercesc::DOMErrorHandler> _errorHandler;
+    xercesc::DOMLSSerializer *_writer;
+
+    xercesc::DOMErrorHandler *_errorHandler;
+    xercesc::DOMLSOutput *_outStream;
+    
 
     //void Init();
     //void Clear();
 
-    //void SetErrorHandler();
-    //
-    //bool CanSetPrettyPrint();
-    //void SetPrettyPrintFormat();
+    void SetErrorHandler();
+    
+    bool CanSetPrettyPrint();
+    void SetPrettyPrintFormat();
+
+    XercesXmlWriter();
+
+    xercesc::DOMConfiguration* GetConfiguration() const;
 
 public:
     //XercesXmlWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl);
     virtual ~XercesXmlWriter();
 
-    //void SetEncoding(const std::string &encoding = "UTF-8");
+    static XercesXmlWriter CreateWriter(xercesc::DOMImplementation *domImpl);
+
+    void SetEncoding(const std::string &encoding = "UTF-8");
 
     //std::string Write(std::shared_ptr<xercesc::DOMNode> domNode);
 };
 
-class XercesXmlChConverter
+class XStr
 {
 public:
-    //
+    static std::shared_ptr<XMLCh> StringToXmlCh(const std::string &str);
+    static std::string XmlChToString(const XMLCh* xmlCh);
 };
 
 class XercesAdapter
@@ -149,8 +167,14 @@ private:
 
     //void Clear();
 
-    /*std::shared_ptr<xercesc::DOMImplementation> _domImpl;
-    std::shared_ptr<XercesXmlWriter> _xmlWriter;*/
+    //std::shared_ptr<xercesc::DOMImplementation> _domImpl;
+    //std::shared_ptr<XercesXmlWriter> _xmlWriter;
+
+    /// Don't use smart pointer OR delete this manually
+    /// It will be deleted by XercesC itself
+    xercesc::DOMImplementation *_domImpl;
+
+    //xercesc::DOMImplementation *_domImpl;
 public:
     XercesAdapter(XercesAdapter const &) = delete;
     XercesAdapter& operator=(XercesAdapter const &) = delete;
@@ -159,7 +183,7 @@ public:
 
     static XercesAdapter& GetInstance();
 
-    //std::shared_ptr<xercesc::DOMDocument> CreateEmptyDocument() const;
+    xercesc::DOMDocument* CreateEmptyDocument();
 
     //std::shared_ptr<xercesc::DOMElement> CreateElementFromDocument(std::shared_ptr<xercesc::DOMDocument> xmlDoc, const std::string &name);
 
@@ -167,10 +191,6 @@ public:
     //    std::shared_ptr<xercesc::DOMElement> element,
     //    std::shared_ptr<xercesc::DOMElement> targetElement,
     //    bool deep = false);
-
-    // TODO: Might change this
-    std::shared_ptr<XMLCh> StringToXmlCh(const std::string &str);
-    std::string XmlChToString(const std::shared_ptr<XMLCh> xmlCh);
 
     //std::string NodeToString(std::shared_ptr<xercesc::DOMNode> domNode, const std::string &encoding = "UTF-8");
 };
