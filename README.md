@@ -1,5 +1,5 @@
 # Test XML Parser Library for C++
-,,,c++
+'''cpp
 	static void AddXmlChildElement(XmlElement &parent, XmlElement &child, XmlElement &insertBefore);
 
 	static std::shared_ptr<XmlElement> CopyXmlElement(XmlElement &element);
@@ -29,4 +29,4 @@
 	static std::shared_ptr<XmlDocument> XmlLoadFromFile(std::string &path, Encodings &fallbackEncoding);
 	static void XmlSaveToFile(XmlDocument &document);
 	static std::shared_ptr<ByteField> XmlToByteField(XmlDocument &document);
-,,,
+'''
