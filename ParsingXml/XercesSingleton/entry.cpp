@@ -52,12 +52,11 @@ using xercesc::TranscodeFromStr;
 #define ERROR_HANDLER XMLUni::fgDOMErrorHandler
 
 #define DEFAULT_XML_VERSION "1.0"
+#define DEFAULT_ENCODING "UTF-8"
 
 #include <iostream>
 
 #include <sstream>
-
-//#include <str>
 
 // XmlDocument------------------------------------------------------
 
@@ -78,7 +77,7 @@ XmlDocument::XmlDocument(
 
     // TODO: Consider check Version in here instead of outside
     this->_xmlDocument
-        ->setXmlVersion(XStr::StringToXmlCh(version).get());
+        ->setXmlVersion(StringToXmlCh(version).Get());
 
     // TODO: Encoding Check
     this->_encoding = encoding;
@@ -115,7 +114,7 @@ XmlElement::XmlElement(std::string name)
     _ownerDocument = XercesAdapter::GetInstance().CreateEmptyDocument();
 
     _xmlElement = _ownerDocument
-        ->createElement(XStr::StringToXmlCh(name).get());
+        ->createElement(StringToXmlCh(name).Get());
 }
 
 XmlElement::~XmlElement()
@@ -195,7 +194,7 @@ bool DOMPrintErrorHandler::handleError(const DOMError &domError)
         std::cerr << "\nFatal Message: ";
 
     // Not Use XercesAdapter Converter to avoid Circular Dependancy
-    std::string msg = XStr::XmlChToString(domError.getMessage());
+    std::string msg = XmlChToString(domError.getMessage()).Get();
 
     std::cerr << msg << std::endl;
 
@@ -203,42 +202,23 @@ bool DOMPrintErrorHandler::handleError(const DOMError &domError)
     return true;
 }
 
-//XercesXmlWriter::XercesXmlWriter(
-//    std::shared_ptr<DOMImplementation> domImpl)
-//{
-//}
+XercesXmlWriter::XercesXmlWriter(DOMImplementation *domImpl)
+{
+    _writer = domImpl->createLSSerializer();
+    _errorHandler = std::make_shared<DOMPrintErrorHandler>();
+    _outStream = domImpl->createLSOutput();
 
-XercesXmlWriter::XercesXmlWriter() {}
+    SetPrettyPrintFormat();
+    SetEncoding();
+}
 
 XercesXmlWriter::~XercesXmlWriter()
 {
-    delete _errorHandler;
-    _errorHandler = nullptr;
-
     _outStream->release();
     _outStream = nullptr;
 
     _writer->release();
     _writer = nullptr;
-}
-
-XercesXmlWriter XercesXmlWriter::CreateWriter(DOMImplementation *domImpl)
-{
-    XercesXmlWriter xmlWriter;
-    xmlWriter._writer = domImpl->createLSSerializer();
-    xmlWriter._errorHandler = new DOMPrintErrorHandler();
-    xmlWriter._outStream = domImpl->createLSOutput();
-
-    xmlWriter.SetPrettyPrintFormat();
-    xmlWriter.SetEncoding();
-    //xmlWriter._writer->wirte
-    /*auto temp = new XMLByte[9];
-    temp[0] = 0xd7;
-    temp[1] = 0x7e;
-    temp[2] = 0x31;*/
-    //XMLString::transcode(temp);
-
-    return xmlWriter;
 }
 
 DOMConfiguration* XercesXmlWriter::GetConfiguration() const
@@ -260,12 +240,17 @@ DOMConfiguration* XercesXmlWriter::GetConfiguration() const
 
 void XercesXmlWriter::SetErrorHandler()
 {
-    GetConfiguration()->setParameter(ERROR_HANDLER, _errorHandler);
+    GetConfiguration()->setParameter(ERROR_HANDLER, _errorHandler.get());
+}
+
+void XercesXmlWriter::SetEncoding()
+{
+    SetEncoding(DEFAULT_ENCODING);
 }
 
 void XercesXmlWriter::SetEncoding(const std::string &encoding)
 {
-    _outStream->setEncoding(XStr::StringToXmlCh(encoding).get());
+    _outStream->setEncoding(StringToXmlCh(encoding).Get());
 }
 
 bool XercesXmlWriter::CanSetPrettyPrint()
@@ -291,6 +276,27 @@ void XercesXmlWriter::SetPrettyPrintFormat()
 //    return str;
 //}
 
+std::string XercesXmlWriter::WriteToString(DOMNode *domNode)
+{
+    std::shared_ptr<MemBufFormatTarget> formatTarget =
+        std::make_shared<MemBufFormatTarget>();
+
+    _outStream->setByteStream(formatTarget.get());
+
+    _writer->write(domNode, _outStream);
+
+    std::string str = 
+        XmlChToString(
+            TranscodeFromStr(
+                formatTarget->getRawBuffer(),
+                formatTarget->getLen(),
+                DEFAULT_ENCODING
+            ).adopt()
+        ).Get();
+
+    return str;
+}
+
 XercesAdapter::XercesAdapter()
 {
     try
@@ -306,6 +312,8 @@ XercesAdapter::XercesAdapter()
     //InitializeDomImplementation();
 
     _domImpl = DOMImplementationRegistry::getDOMImplementation(u"");
+
+    _xmlWriter = std::make_shared<XercesXmlWriter>(_domImpl);
 }
 
 XercesAdapter::~XercesAdapter()
@@ -345,22 +353,60 @@ XercesAdapter& XercesAdapter::GetInstance()
     static XercesAdapter _xercesAdapter;
     return _xercesAdapter;
 }
+////---------------------------------------------------------
 
-std::shared_ptr<XMLCh> XStr::StringToXmlCh(const std::string &str)
+//// Converter-----------------------------------------------
+//std::shared_ptr<XMLCh> XStr::StringToXmlCh(const std::string &str)
+//{
+//    return std::shared_ptr<XMLCh>(XMLString::transcode(str.c_str()));
+//}
+//
+//std::string XStr::XmlChToString(const XMLCh* xmlCh)
+//{
+//    std::shared_ptr<char> convertedChar(XMLString::transcode(xmlCh));
+//
+//    std::string str;
+//    str.push_back(*convertedChar);
+//
+//    return str;
+//}
+
+StringToXmlCh::StringToXmlCh(const std::string &str)
 {
-    return std::shared_ptr<XMLCh>(XMLString::transcode(str.c_str()));
+    _xmlCh = XMLString::transcode(str.c_str());
 }
 
-std::string XStr::XmlChToString(const XMLCh* xmlCh)
+StringToXmlCh::~StringToXmlCh()
 {
-    std::shared_ptr<char> convertedChar(XMLString::transcode(xmlCh));
+    XMLString::release(&_xmlCh);
 
-    std::string str;
-    str.push_back(*convertedChar);
-
-    return str;
+    _xmlCh = nullptr;
 }
 
+XMLCh* StringToXmlCh::Get() const
+{
+    return _xmlCh;
+}
+
+XmlChToString::XmlChToString(const char16_t *xmlCh)
+{
+    _strChars = XMLString::transcode(xmlCh);
+}
+
+XmlChToString::~XmlChToString()
+{
+    XMLString::release(&_strChars);
+
+    _strChars = nullptr;
+}
+
+std::string XmlChToString::Get() const
+{
+    std::stringstream sstream;
+    sstream << _strChars;
+    
+    return sstream.str();
+}
 //------------------------------------------------------------------
 
 int main()

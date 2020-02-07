@@ -26,7 +26,7 @@ namespace xercesc_3_2
 
     class DOMLSOutput;
 
-    class XMLFormatTarget;
+    //class XMLFormatTarget;
     //class DOMErrorHandler;
     // TODO: Add more?
 }
@@ -124,7 +124,7 @@ private:
     //std::shared_ptr<xercesc::DOMErrorHandler> _errorHandler;
     xercesc::DOMLSSerializer *_writer;
 
-    xercesc::DOMErrorHandler *_errorHandler;
+    std::shared_ptr<xercesc::DOMErrorHandler> _errorHandler;
     xercesc::DOMLSOutput *_outStream;
     
 
@@ -136,26 +136,45 @@ private:
     bool CanSetPrettyPrint();
     void SetPrettyPrintFormat();
 
-    XercesXmlWriter();
-
     xercesc::DOMConfiguration* GetConfiguration() const;
 
 public:
-    //XercesXmlWriter(std::shared_ptr<xercesc::DOMImplementation> domImpl);
+    XercesXmlWriter(xercesc::DOMImplementation *domImpl);
     virtual ~XercesXmlWriter();
 
-    static XercesXmlWriter CreateWriter(xercesc::DOMImplementation *domImpl);
+    void SetEncoding();
+    void SetEncoding(const std::string &encoding);
 
-    void SetEncoding(const std::string &encoding = "UTF-8");
-
-    //std::string Write(std::shared_ptr<xercesc::DOMNode> domNode);
+    std::string WriteToString(xercesc::DOMNode *domNode);
 };
 
-class XStr
+//class XStr
+//{
+//public:
+//    static std::shared_ptr<XMLCh> StringToXmlCh(const std::string &str);
+//    static std::string XmlChToString(const XMLCh* xmlCh);
+//};
+
+class StringToXmlCh
 {
+private:
+    char16_t *_xmlCh;
 public:
-    static std::shared_ptr<XMLCh> StringToXmlCh(const std::string &str);
-    static std::string XmlChToString(const XMLCh* xmlCh);
+    StringToXmlCh(const std::string &str);
+    virtual ~StringToXmlCh();
+
+    char16_t* Get() const;
+};
+
+class XmlChToString
+{
+private:
+    char *_strChars;
+public:
+    XmlChToString(const char16_t *xmlCh);
+    virtual ~XmlChToString();
+
+    std::string Get() const;
 };
 
 class XercesAdapter
@@ -173,6 +192,8 @@ private:
     /// Don't use smart pointer OR delete this manually
     /// It will be deleted by XercesC itself
     xercesc::DOMImplementation *_domImpl;
+
+    std::shared_ptr<XercesXmlWriter> _xmlWriter;
 
     //xercesc::DOMImplementation *_domImpl;
 public:
