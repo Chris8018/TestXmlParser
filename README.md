@@ -1,5 +1,5 @@
 # Test XML Parser Library for C++
-,,,cpp
+,,,c_cpp
 	static void AddXmlChildElement(XmlElement &parent, XmlElement &child, XmlElement &insertBefore);
 
 	static std::shared_ptr<XmlElement> CopyXmlElement(XmlElement &element);
