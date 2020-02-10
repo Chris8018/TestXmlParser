@@ -66,15 +66,15 @@ XmlDocument::XmlDocument(
     const std::string &encoding,
     const bool &standalone)
 {
-    if (rootElement->IsAssigned())
-    {
-        throw std::exception("Is Assigned!!!!");
-    }
+    //if (rootElement->IsAssigned())
+    //{
+    //    throw std::exception("Is Assigned!!!!");
+    //}
 
-    this->_xmlDocument = rootElement->_ownerDocument;
-    this->_xmlDocument->appendChild(rootElement->_xmlElement);
+    //this->_xmlDocument = rootElement->_ownerDocument;
+    //this->_xmlDocument->appendChild(rootElement->_xmlElement);
 
-    rootElement->RemoveOwnerDocument();
+    //rootElement->RemoveOwnerDocument();
 
     // TODO: Consider check Version in here instead of outside
     this->_xmlDocument
@@ -112,54 +112,57 @@ std::string XmlDocument::ToString() const
 
 XmlElement::XmlElement(std::string name)
 {
-    _ownerDocument = XercesUtil::GetInstance().CreateEmptyDOMDocument();
+    //_parent = nullptr;
 
-    _xmlElement = _ownerDocument
+    _dummyOwnerDocument = XercesUtil::GetInstance().CreateEmptyDOMDocument();
+
+    _internalElement = _dummyOwnerDocument
         ->createElement(StringToXmlCh(name).Get());
 }
 
 XmlElement::~XmlElement()
 {
     //_xmlElement->getno
-    _xmlElement = nullptr;
+    _internalElement = nullptr;
 
-    if (!IsAssigned())
-    {
-        _ownerDocument->release();
+    //if (!IsAssigned())
+    //{
+    //    _dummyOwnerDocument->release();
 
-        _ownerDocument = nullptr;
-    }
+    //    _dummyOwnerDocument = nullptr;
+    //}
 }
 
-bool XmlElement::IsAssigned() const
-{
-    return _assigned;
-}
+//bool XmlElement::IsAssigned() const
+//{
+//    return _assigned;
+//}
 
-void XmlElement::ReleaseOwnerDocument()
-{
-    if (!IsAssigned())
-    {
-        _ownerDocument->release();
+//void XmlElement::ReleaseOwnerDocument()
+//{
+//    if (!IsAssigned())
+//    {
+//        _dummyOwnerDocument->release();
+//
+//        RemoveOwnerDocument();
+//    }
+//}
 
-        RemoveOwnerDocument();
-    }
-}
-
-void XmlElement::RemoveOwnerDocument()
-{
-    if (!IsAssigned())
-    {
-        _ownerDocument = nullptr;
-
-        _assigned = true;
-    }
-}
+//void XmlElement::RemoveOwnerDocument()
+//{
+//    if (!IsAssigned())
+//    {
+//        _dummyOwnerDocument = nullptr;
+//
+//        _assigned = true;
+//    }
+//}
 
 std::string XmlElement::ToString() const
 {
-    return XercesUtil::GetInstance()
-        .NodeToString(_xmlElement);
+    //return XercesUtil::GetInstance()
+    //    .NodeToString(_internalElement);
+    return "";
 }
 
 void XmlElement::SetText(const std::string &text)
@@ -170,11 +173,11 @@ void XmlElement::SetText(const std::string &text)
 
 void XmlElement::AddChild(std::shared_ptr<XmlElement> child)
 {
-    if (child->IsAssigned())
-    {
-        // log
-        throw new std::exception("assigned !!!");
-    }
+    //if (child->IsAssigned())
+    //{
+    //    // log
+    //    throw new std::exception("assigned !!!");
+    //}
 
     //this->_xmlElement
 }
@@ -468,11 +471,11 @@ void TestCase1()
     std::shared_ptr<XmlElement> element3 = std::make_shared<XmlElement>("Element3");
     std::shared_ptr<XmlElement> element4 = std::make_shared<XmlElement>("Element4");
 
-    std::shared_ptr<XmlDocument> document1 = std::make_shared<XmlDocument>(element1, "1.0", "UTF-8", false);
+    /*std::shared_ptr<XmlDocument> document1 = std::make_shared<XmlDocument>(element1, "1.0", "UTF-8", false);*/
 
     std::cout << element1->ToString() << std::endl;
 
-    std::cout << document1->ToString() << std::endl;
+    //std::cout << document1->ToString() << std::endl;
 
     std::cout << element2->ToString() << std::endl;
 

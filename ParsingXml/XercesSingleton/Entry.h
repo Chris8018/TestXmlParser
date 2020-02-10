@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <map>
+#include <list>
 
 //#include "xercesc/dom/DOM.hpp"
 
@@ -39,9 +40,14 @@ class OtxDataType
     //
 };
 
+class XmlNode : public OtxDataType
+{
+    //
+};
+
 class XmlElement;
 
-class XmlDocument : public OtxDataType
+class XmlDocument : public XmlNode
 {
 private:
     xercesc::DOMDocument *_xmlDocument;
@@ -63,19 +69,23 @@ public:
     //bool IsEqual(...) const;
 };
 
-class XmlElement : public OtxDataType
+class XmlElement : public XmlNode
 {
-    friend XmlElement;
-    friend XmlDocument;
+    //friend XmlElement;
+    //friend XmlDocument;
 private:
-    xercesc::DOMDocument *_ownerDocument;
+    xercesc::DOMDocument *_dummyOwnerDocument;
 
-    xercesc::DOMElement *_xmlElement;
+    xercesc::DOMElement *_internalElement;
 
-    bool _assigned = false;
+    //bool _assigned = false;
 
-    void ReleaseOwnerDocument();
-    void RemoveOwnerDocument();
+    //std::shared_ptr<XmlNode> _parent;
+
+    std::list<std::shared_ptr<XmlElement>> _internalChildrens;
+
+    //void ReleaseOwnerDocument();
+    //void RemoveOwnerDocument();
     //void SetXmlElement(
     //    std::shared_ptr<xercesc::DOMElement> otherElement);
 
@@ -84,7 +94,7 @@ public:
     //XmlElement(std::)
     virtual ~XmlElement();
 
-    bool IsAssigned() const;
+    //bool IsAssigned() const;
 
     void SetText(const std::string &text);
     //void SetAttribute(const std::string &name, const std::string &value);
