@@ -115,11 +115,12 @@ void CreateAndPrint()
     DOMDocument *domDoc1 =
         domImpl->createDocument(0, XMLString::transcode("Hello_World"), 0);
 
-
     // Append Child
     DOMElement *domEle1 = domDoc1->createElement(XMLString::transcode("child1"));
 
     domDoc1->getFirstChild()->appendChild(domEle1);
+
+    //domEle1->attribute
 
     // DOMElement 5
     DOMElement *domEle5 = domDoc1->createElement(u"ELEMENT5");
@@ -212,24 +213,21 @@ void CreateAndPrint()
     std::cout << "\n";
     std::cout << "\n";
 
-    DOMDocument *doc = 0;
+    //DOMDocument *doc = 0;
+
+    //// SHOULD BE GONE when delete domDoc1
+    DOMElement *dummyElement1 = domDoc1->createElement(u"Dummy1");
 
     // Cleanup.
     //theOutPut->release();
     theSerializer->release();
     theOutPut->release();
 
+    auto temp = domEle5->removeChild(domEle6);
+    temp->release();
+
     domDoc1->release();
-
-    if (doc == NULL)
-    {
-        std::cout << "Doc is NULL" << std::endl;
-    }
-
-    if (domDoc1 == nullptr)
-    {
-        std::cout << "Doc 1 is NULL" << std::endl;
-    }
+    //domEle1->node
 
     //domDoc1->release();
     //delete domDoc1;
@@ -237,6 +235,7 @@ void CreateAndPrint()
     XMLPlatformUtils::Terminate();
 }
 
+// FAILED BADLY
 void CreateAndPrintSmartPointer()
 {
     std::cout << "CreateAndPrintOnConsole With Smart Pointer" << std::endl;

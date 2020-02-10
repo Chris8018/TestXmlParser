@@ -19,6 +19,8 @@
 #include <Poco/DOM/DOMWriter.h>
 #include <Poco/XML/XMLWriter.h>
 
+#include <Poco/DOM/NodeList.h>
+
 #include <Poco/UTF16Encoding.h>
 #include <Poco/TextEncoding.h>
 using namespace Poco::XML;
@@ -75,6 +77,13 @@ void basicCreateAndPrintAndEncoding()
     pChild1->appendChild(pText1);
 
     pRoot->appendChild(pChild1);
+    
+
+    NodeList * test = pRoot->childNodes();
+    pRoot->getNodeByPath("");
+    pRoot->getNodeValue();
+    
+    
 
     // Child Node
     AutoPtr<Element> pChild2 = pDoc->createElement("ccc:child2");

@@ -74,6 +74,7 @@ private:
 
     bool _assigned = false;
 
+    void ReleaseOwnerDocument();
     void RemoveOwnerDocument();
     //void SetXmlElement(
     //    std::shared_ptr<xercesc::DOMElement> otherElement);
@@ -85,11 +86,11 @@ public:
 
     bool IsAssigned() const;
 
-    //void SetText(const std::string &text);
+    void SetText(const std::string &text);
     //void SetAttribute(const std::string &name, const std::string &value);
     //void SetAttributes(const std::map<std::string, std::string> &attributes);
 
-    //void AddChild(std::shared_ptr<XmlElement> child);
+    void AddChild(std::shared_ptr<XmlElement> child);
     //void InsertChildBefore(
     //    std::shared_ptr<XmlElement> child,
     //    std::shared_ptr<XmlElement> element);
@@ -177,10 +178,10 @@ public:
     std::string Get() const;
 };
 
-class XercesAdapter
+class XercesUtil
 {
 private:
-    XercesAdapter();
+    XercesUtil();
 
     //void InitializeDomImplementation();
 
@@ -193,18 +194,22 @@ private:
     /// It will be deleted by XercesC itself
     xercesc::DOMImplementation *_domImpl;
 
-    std::shared_ptr<XercesXmlWriter> _xmlWriter;
+    XercesXmlWriter *_xmlWriter;
 
     //xercesc::DOMImplementation *_domImpl;
 public:
-    XercesAdapter(XercesAdapter const &) = delete;
-    XercesAdapter& operator=(XercesAdapter const &) = delete;
+    XercesUtil(XercesUtil const &) = delete;
+    XercesUtil& operator=(XercesUtil const &) = delete;
 
-    virtual ~XercesAdapter();
+    virtual ~XercesUtil();
 
-    static XercesAdapter& GetInstance();
+    static XercesUtil& GetInstance();
 
-    xercesc::DOMDocument* CreateEmptyDocument();
+    xercesc::DOMDocument* CreateEmptyDOMDocument();
+
+    std::string NodeToString(xercesc::DOMNode *domNode);
+
+    xercesc::DOMElement* ImportDOMElement(xercesc::DOMDocument *doc, xercesc::DOMElement *element);
 
     //std::shared_ptr<xercesc::DOMElement> CreateElementFromDocument(std::shared_ptr<xercesc::DOMDocument> xmlDoc, const std::string &name);
 
