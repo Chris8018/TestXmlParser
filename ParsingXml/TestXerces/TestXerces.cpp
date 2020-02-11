@@ -154,7 +154,11 @@ void CreateAndPrint()
 
     domEle2->setAttribute(u"key", u" ");
 
-    domEle2->setTextContent(XMLString::transcode("~!@#$%^&*()_+{}|:\"<>?`1234567890-=[]\\;',./"));
+
+    XMLCh *textWithSymbols = XMLString::transcode("~!@#$%^&*()_+{}|:\"<>?`1234567890-=[]\\;',./");
+    domEle2->setTextContent(textWithSymbols);
+    //((DOMAttr*) domEle1->getAttributes()->item(1))->getna
+    domEle1->setAttribute(u" ", u" ");
 
     // DOMElement 3
     DOMElement *domEle3 = domDoc2->createElement(u"rnd:Child3");
