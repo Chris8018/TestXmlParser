@@ -31,3 +31,17 @@ static std::shared_ptr<XmlDocument> XmlLoadFromFile(std::string &path, Encodings
 static void XmlSaveToFile(XmlDocument &document);
 static std::shared_ptr<ByteField> XmlToByteField(XmlDocument &document);
 ```
+
+## Element Text Escaping SYMBOL
+XML Text Escape Case
+
+~!@#$%^&*    ()_+{}|:\"  <   > ?`1234567890-=[]\\;',./ - In
+
+~!@#$%^&amp;*()_+{}|: "&lt;&gt;?`1234567890-=[]\\;',./ - Out - Java
+
+~!@#$%^&amp;*()_+{}|: "&lt;&gt;?`1234567890-=[]\\;',./ - Out - C#
+
+~!@#$%^&amp;*()_+{}|: "&lt;&gt;?`1234567890-=[] \;',./ - Out - C++ (Xerces) -> I wonder if this is fine
+
+I will let the node name handle by Xerces itself
+As for Text, Attribute Key and Value, I might need to handle them myself

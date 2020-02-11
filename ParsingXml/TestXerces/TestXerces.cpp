@@ -106,7 +106,16 @@ void CreateAndPrint()
     //domDoc2->appendChild(pi1);
 
     // Dom Ele2 - with namespace
-    DOMElement *domEle2 = domDoc2->createElement(XMLString::transcode("namespace:randomChild1"));
+    DOMElement *domEle2 = nullptr;
+    try
+    {
+        domEle2 = domDoc2->createElement(XMLString::transcode("TEST ELEMENT"));
+    }
+    catch (const DOMException &e)
+    {
+        domEle2 = domDoc2->createElement(XMLString::transcode("TEST_ELEMENT"));
+        //DOMDocumentImpl::
+    }
 
     domDoc2->appendChild(domEle2);
     domEle2->setTextContent(u"Ele2 Text");
@@ -141,10 +150,18 @@ void CreateAndPrint()
     //dynamic_cast<DOMElement *>(movedEle2)->setAttribute(XMLString::transcode("sad:inde"), XMLString::transcode("a value in attr with namespace"));
     domEle2->setAttribute(XMLString::transcode("sad:inde"), XMLString::transcode("value"));
 
+    //domEle2->setAttribute(u" ", u"value");
+
+    domEle2->setAttribute(u"key", u" ");
+
+    domEle2->setTextContent(XMLString::transcode("~!@#$%^&*()_+{}|:\"<>?`1234567890-=[]\\;',./"));
+
     // DOMElement 3
     DOMElement *domEle3 = domDoc2->createElement(u"rnd:Child3");
 
     domEle2->appendChild(domEle3);
+
+    //domEle2->setTextContent(XMLString::transcode("LONGGGGGG Text"));
 
     // DOMElement 4 - Insert Before (1 node above the new Element)
     DOMElement *domEle4 = domDoc1->createElement(u"ELEMENT4");
