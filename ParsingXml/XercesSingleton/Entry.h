@@ -213,6 +213,9 @@ public:
     // @return Xerces Adapter object
     static XercesAdapter& GetInstance();
 
+    std::string NodeToString(std::shared_ptr<XmlElement> xmlElement);
+    std::string NodeToString(std::shared_ptr<XmlDocument> xmlDocument);
+
     // @return Empty DOMDocument
     xercesc::DOMDocument* CreateEmptyDOMDocument();
     

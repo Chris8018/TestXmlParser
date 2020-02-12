@@ -300,6 +300,16 @@ XercesAdapter &XercesAdapter::GetInstance()
     return _xercesAdapter;
 }
 
+std::string NodeToString(std::shared_ptr<XmlElement> xmlElement)
+{
+    return "";
+}
+
+std::string NodeToString(std::shared_ptr<XmlDocument> xmlDocument)
+{
+    return "";
+}
+
 DOMDocument* XercesAdapter::CreateEmptyDOMDocument()
 {
     return _domImpl->createDocument(0, 0, 0);
