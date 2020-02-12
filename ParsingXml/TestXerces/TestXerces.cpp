@@ -38,6 +38,8 @@ void CreateAndPrint();
 void CreateAndPrintSmartPointer();
 std::string convertUTF16_UTF8(XMLCh *str);
 
+void TryDomDocFragment();
+
 bool toFile = false;
 
 class DOMPrintErrorHandler : public DOMErrorHandler
@@ -65,6 +67,8 @@ int main(void)
     CreateAndPrint();
 
     //CreateAndPrintSmartPointer();
+
+    //TryDomDocFragment();
 
     return 0;
 }
@@ -153,19 +157,21 @@ void CreateAndPrint()
     //domEle2->setAttribute(u" ", u"value");
 
     domEle2->setAttribute(u"key", u" ");
+    domEle2->setAttribute(u"attr2", u"2");
+    domEle2->setAttribute(u"attr3", u"3");
+    domEle2->setAttribute(u"attr4", u"4");
+    //domEle2->remov
 
 
     XMLCh *textWithSymbols = XMLString::transcode("~!@#$%^&*()_+{}|:\"<>?`1234567890-=[]\\;',./");
     domEle2->setTextContent(textWithSymbols);
     //((DOMAttr*) domEle1->getAttributes()->item(1))->getna
-    domEle1->setAttribute(u" ", u" ");
+    //domEle1->setAttribute(u" ", u" ");
 
     // DOMElement 3
     DOMElement *domEle3 = domDoc2->createElement(u"rnd:Child3");
 
     domEle2->appendChild(domEle3);
-
-    //domEle2->setTextContent(XMLString::transcode("LONGGGGGG Text"));
 
     // DOMElement 4 - Insert Before (1 node above the new Element)
     DOMElement *domEle4 = domDoc1->createElement(u"ELEMENT4");
@@ -244,8 +250,8 @@ void CreateAndPrint()
     theSerializer->release();
     theOutPut->release();
 
-    auto temp = domEle5->removeChild(domEle6);
-    temp->release();
+    //auto temp = domEle5->removeChild(domEle6);
+    //temp->release();
 
     domDoc1->release();
     //domEle1->node
@@ -386,6 +392,147 @@ void CreateAndPrintSmartPointer()
     //domImpl.reset();
 }
 
+void TryDomDocFragment()
+{
+    std::cout << "Try Dom Doc Fragment" << std::endl;
+
+    std::vector<std::string> paths = { "D:\\Workspace\\XmlStorage\\SavedData_xerces_NonDocument.xml" };
+
+    // Initialze
+    try
+    {
+        XMLPlatformUtils::Initialize();
+    }
+    catch (const std::exception & e)
+    {
+        std::cout << e.what() << std::endl;
+        return;
+    }
+
+    // DOMImpl
+    XMLCh features[3] = { (XMLCh)76U, (XMLCh)83U, (XMLCh)0U };
+    DOMImplementation *domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    DOMDocument *doc1 = domImpl->createDocument();
+
+    //auto domFrag1 = doc1->createDocumentFragment();
+
+    //doc1->eva
+    //domFrag1->set
+    //auto ele1 = doc1->createElement(u"Element1");
+
+    //domFrag1->appendChild(ele1);
+
+
+    //auto domFrag2 = doc1->createDocumentFragment();
+
+    //auto ele2 = doc1->createElement(u"Element2");
+
+    //domFrag2->appendChild(ele2);
+
+    //ele1->appendChild(domFrag2);
+
+    //doc1->appendChild(domFrag1);
+
+    auto ele1 = doc1->createElement(u"Element1");
+
+    doc1->appendChild(ele1);
+
+
+    auto ele2 = doc1->createElement(u"Element2");
+
+    ele1->appendChild(ele2);
+
+
+    auto test1 = ele1->getParentNode();
+
+    auto ele3 = doc1->createElement(u"Element3");
+
+    auto test2 = ele3->getParentNode();
+
+    /// Both null check work
+    /// if (test2) will also work
+    //doc1->evaluate()
+    if (test2 == NULL)
+    {
+        std::cout << "" << std::endl;
+    }
+
+    if (test2 == nullptr)
+    {
+        std::cout << "" << std::endl;
+    }
+
+    auto test3 = doc1->getParentNode();
+
+    auto test4 = ele2->getParentNode();
+
+    auto test5 = static_cast<DOMElement *>(test1);
+
+    auto test6 = static_cast<DOMDocument *>(test1);
+
+    //if ((DOMDocument*)test5 == doc1)
+    //{
+    //    int a = 1;
+    //}
+
+    //if (test6 == doc1)
+    //{
+    //    int a = 1;
+    //}
+
+    //// DOMLSOutput-----------------------------------------
+    DOMLSOutput *theOutPut = domImpl->createLSOutput();
+    theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+    ////-----------------------------------------------------
+
+    // Check encoding type
+    //auto check = theOutPut->getEncoding();
+
+    //// DOMLSSerializer-------------------------------------
+    DOMLSSerializer *theSerializer = domImpl->createLSSerializer();
+    ////-----------------------------------------------------
+
+    //// Error Handler---------------------------------------
+    DOMErrorHandler *myErrorHandler = new DOMPrintErrorHandler();
+    ////-----------------------------------------------------
+
+    //// Configure-------------------------------------------
+    DOMConfiguration *serializerConfig = theSerializer->getDomConfig();
+    // Set Error Handler
+    serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, myErrorHandler);
+    // Set Pretty Print
+    if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+        serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+    ////-----------------------------------------------------
+
+    //// Format Target---------------------------------------
+    XMLFormatTarget *myFormTarget;
+
+    if (toFile)
+        myFormTarget = new LocalFileFormatTarget(paths[0].c_str());
+    else
+        myFormTarget = new StdOutFormatTarget();
+    ////-----------------------------------------------------
+
+    ////-----------------------------------------------------
+    theOutPut->setByteStream(myFormTarget);
+    ////-----------------------------------------------------
+
+    //theSerializer->write(domFrag1, theOutPut);
+
+    theSerializer->write(ele1, theOutPut);
+
+    theSerializer->release();
+    theOutPut->release();
+
+    //domFrag1->release();
+
+    doc1->release();
+
+    XMLPlatformUtils::Terminate();
+}
 
 std::string convertUTF16_UTF8(XMLCh *str)
 {

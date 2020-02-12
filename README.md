@@ -41,7 +41,10 @@ XML Text Escape Case
 
 ~!@#$%^&amp;*()_+{}|: "&lt;&gt;?`1234567890-=[]\\;',./ - Out - C#
 
-~!@#$%^&amp;*()_+{}|: "&lt;&gt;?`1234567890-=[] \;',./ - Out - C++ (Xerces) -> I wonder if this is fine
+~!@#$%^&amp;*()_+{}|: "&lt;&gt;?`1234567890-=[] \;',./ - Out - C++ (Xerces)
+                                               
 
 I will let the node name handle by Xerces itself
 As for Text, Attribute Key and Value, I might need to handle them myself
+
+-> Can do that either by take Exception or Try to use name checking within the chosen library.
