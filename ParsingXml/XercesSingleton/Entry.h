@@ -33,8 +33,6 @@ namespace xercesc_3_2
 }
 namespace xercesc = xercesc_3_2;
 
-void TestCase1();
-
 class OtxDataType
 {
     //
@@ -62,8 +60,11 @@ public:
         std::shared_ptr<XmlElement> rootElement,
         const std::string &encoding,
         const std::string &version,
-        const std::string &standalone);
+        const std::string &standalone
+    );
     virtual ~XmlDocument();
+
+    std::shared_ptr<XmlElement> GetRootElement() const;
 
     std::string ToString() const;
 
@@ -81,7 +82,7 @@ public:
     XmlElement(xercesc::DOMElement *element);
     virtual ~XmlElement();
 
-    xercesc::DOMElement* GetDomElement();
+    xercesc::DOMElement* GetDomElement() const;
 
     bool HasParent() const;
 
@@ -190,21 +191,20 @@ private:
     // This Writer need to be deleted before TERMINATE
     XercesXmlWriter *_xmlStringWriter;
 
-    void SetAttributes(
-        xercesc::DOMElement *element,
-        std::map<std::string, std::string> attributes
-    );
-
     static bool IsEmptyOrWhiteSpaceString(const std::string &str);
     static bool IsWhiteSpaceString(const std::string &str);
 
     // TODO: Change encoding to Enum
-    bool IsNotValidEncoding(const std::string &encoding);
+    static bool IsNotValidEncoding(const std::string &encoding);
     // std::string stringEncoding // TODO: Implement + Change Name
 
-    bool IsValidXmlVersion(const std::string &version);
+    static bool IsValidXmlVersion(const std::string &version);
+
+    void ClearXmlElementAttributes(std::shared_ptr<XmlElement> element);
+
 public:
     XercesAdapter(XercesAdapter const &) = delete;
+
     XercesAdapter& operator=(XercesAdapter const &) = delete;
 
     virtual ~XercesAdapter();
@@ -213,7 +213,7 @@ public:
     // @return Xerces Adapter object
     static XercesAdapter& GetInstance();
 
-    std::string NodeToString(std::shared_ptr<XmlElement> xmlElement);
+    std::string NodeToString(const XmlElement &xmlElement);
     std::string NodeToString(std::shared_ptr<XmlDocument> xmlDocument);
 
     // @return Empty DOMDocument
@@ -237,6 +237,17 @@ public:
         std::shared_ptr<XmlElement> insertBefore,
         std::shared_ptr<XmlElement> parent
     );
+
+    void SetXmlElementAttributes(
+        std::map<std::string, std::string> attributes,
+        std::shared_ptr<XmlElement> element
+    );
+
+    void SetXmlElementAttribute(
+        std::shared_ptr<XmlElement> element,
+        const std::string &name,
+        const std::string &value
+    );
 };
 
 class XmlLib
@@ -250,4 +261,6 @@ public:
     static void AddXmlChildElement(std::shared_ptr<XmlElement> parent, std::shared_ptr<XmlElement> child, std::shared_ptr<XmlElement> insertBefore);
 };
 
+static void TestCase1();
+static void TestCase2();
 #endif // !XercesSingleton_H

@@ -40,6 +40,8 @@ std::string convertUTF16_UTF8(XMLCh *str);
 
 void TryDomDocFragment();
 
+void TestSimpleMemoryLeak();
+
 bool toFile = false;
 
 class DOMPrintErrorHandler : public DOMErrorHandler
@@ -64,11 +66,13 @@ int main(void)
 {
     //toFile = true;
 
-    CreateAndPrint();
+    //CreateAndPrint();
 
     //CreateAndPrintSmartPointer();
 
     //TryDomDocFragment();
+
+    TestSimpleMemoryLeak();
 
     return 0;
 }
@@ -84,14 +88,14 @@ void CreateAndPrint()
     {
         XMLPlatformUtils::Initialize();
     }
-    catch (const std::exception & e)
+    catch (const XMLException &e)
     {
-        std::cout << e.what() << std::endl;
+        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
         return;
     }
 
     // DOMImpl
-    XMLCh features[3] = { (XMLCh)76U, (XMLCh)83U, (XMLCh)0U };
+    //XMLCh features[3] = { (XMLCh)76U, (XMLCh)83U, (XMLCh)0U };
     DOMImplementation *domImpl =
         DOMImplementationRegistry::getDOMImplementation(u"");
 
@@ -178,6 +182,31 @@ void CreateAndPrint()
 
     domEle5->insertBefore(domEle4, domEle6);
 
+    //domEle5->appendChild(domEle4);
+
+    // DOMElement 7
+    DOMElement *domEle7 = domDoc1->createElement(u"ELEMENT7");
+
+    domEle5->insertBefore(domEle7, nullptr);
+
+    // DOMElement 8
+    DOMElement *domEle8 = domDoc1->createElement(u"ELEMENT8");
+
+    domDoc1->getDocumentElement()->insertBefore(domEle8, nullptr);
+
+    // DOMElement 9
+    DOMElement *domEle9 = domDoc1->createElement(u"ELEMENT9");
+
+    try
+    {
+        domEle5->insertBefore(domEle9, domEle8);
+    }
+    catch (const DOMException &e)
+    {
+        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
+    }
+    //domEle5->appendChild(domEle8);
+
     //// DOMLSOutput-----------------------------------------
     DOMLSOutput *theOutPut = domImpl->createLSOutput();
     theOutPut->setEncoding(XMLString::transcode("UTF-8"));
@@ -232,9 +261,21 @@ void CreateAndPrint()
     std::cout << "\n";
     std::cout << "\n";
 
+    //auto temp = domEle5->removeChild(domEle6);
+    //temp->release();
+    //domEle6->release();
+
     // Print on Console
     std::cout << "Dom Elem 1" << std::endl;
     theSerializer->write(domEle1, theOutPut);
+
+    std::cout << "\n";
+    std::cout << "\n";
+    std::cout << "\n";
+
+    // Print on Console
+    std::cout << "Dom Elem 6" << std::endl;
+    theSerializer->write(domEle6, theOutPut);
 
     std::cout << "\n";
     std::cout << "\n";
@@ -245,6 +286,10 @@ void CreateAndPrint()
     //// SHOULD BE GONE when delete domDoc1
     DOMElement *dummyElement1 = domDoc1->createElement(u"Dummy1");
 
+    auto dummyDoc = domImpl->createDocument();
+
+    auto ele7 = dummyDoc->createElement(u"Element7");
+
     // Cleanup.
     //theOutPut->release();
     theSerializer->release();
@@ -252,6 +297,21 @@ void CreateAndPrint()
 
     //auto temp = domEle5->removeChild(domEle6);
     //temp->release();
+
+    //try
+    //{
+    //    auto testRemove = (DOMElement*)domEle5->removeChild(domEle6);
+    //    //domEle6->release();
+    //    testRemove->release();
+    //}
+    //catch (const std::exception &e)
+    //{
+    //    std::cout << e.what() << std::endl;
+    //}
+    //catch (const DOMException &e)
+    //{
+    //    std::cout << XMLString::transcode(e.getMessage()) << std::endl;
+    //}
 
     domDoc1->release();
     //domEle1->node
@@ -532,6 +592,57 @@ void TryDomDocFragment()
     doc1->release();
 
     XMLPlatformUtils::Terminate();
+}
+
+void CreateElement(DOMDocument *doc);
+
+void TestSimpleMemoryLeak()
+{
+    std::cout << "Test Memory Leak" << std::endl;
+
+    // Initialze
+    try
+    {
+        XMLPlatformUtils::Initialize();
+    }
+    catch (const XMLException & e)
+    {
+        //std::cout << e.what() << std::endl;
+        return;
+    }
+
+    DOMImplementation *domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    DOMDocument *doc1 = domImpl->createDocument();
+
+    for (int i = 0; i < 1000000; i++)
+    {
+        CreateElement(doc1);
+    }
+
+    doc1->release();
+
+    XMLPlatformUtils::Terminate();
+}
+
+void CreateElement(DOMDocument *doc)
+{
+    DOMElement *element1 = doc->createElement(u"element1");
+    //doc->adoptNode()
+    //doc->setNamedItem(nullptr);
+    element1->release();
+    //DOMNode *rem = doc->appendChild(element1);
+    //rem->release();
+    //element1->setAttribute(u"name1", u"value1");
+
+    //auto attr1 = element1->getAttributeNode(u"name1");
+    //element1->removeAttributeNode(attr1);
+
+    //attr1->release();
+
+    //doc->appendChild(ele1);
+    //doc->removeChild(ele1)->release();
 }
 
 std::string convertUTF16_UTF8(XMLCh *str)
