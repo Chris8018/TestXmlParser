@@ -616,7 +616,7 @@ void TestSimpleMemoryLeak()
 
     DOMDocument *doc1 = domImpl->createDocument();
 
-    for (int i = 0; i < 1000000; i++)
+    for (int i = 0; i < 100000; i++)
     {
         CreateElement(doc1);
     }
@@ -632,6 +632,14 @@ void CreateElement(DOMDocument *doc)
     //doc->adoptNode()
     //doc->setNamedItem(nullptr);
     element1->release();
+
+    //delete element1;
+
+    //auto docFrag = doc->createDocumentFragment();
+    //docFrag->appendChild(element1);
+
+    //docFrag->release();
+
     //DOMNode *rem = doc->appendChild(element1);
     //rem->release();
     //element1->setAttribute(u"name1", u"value1");

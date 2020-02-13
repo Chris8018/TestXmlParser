@@ -10,6 +10,7 @@
 
 #include <Poco/DOM/Document.h>
 #include <Poco/DOM/Element.h>
+//#include <Poco/DOM/DocumentFragment.h>
 
 #include <Poco/DOM/ProcessingInstruction.h>
 
@@ -40,6 +41,7 @@ using namespace Poco::XML;
 std::vector<std::string> paths;
 
 void basicCreateAndPrintAndEncoding();
+void TestSimpleMemoryLeak();
 
 int main()
 {
@@ -50,7 +52,9 @@ int main()
     // String 16 test
     std::u16string str = u"1";
 
-    basicCreateAndPrintAndEncoding();
+    //basicCreateAndPrintAndEncoding();
+
+    TestSimpleMemoryLeak();
 
     return 0;
 }
@@ -77,7 +81,6 @@ void basicCreateAndPrintAndEncoding()
     pChild1->appendChild(pText1);
 
     pRoot->appendChild(pChild1);
-    
 
     NodeList * test = pRoot->childNodes();
     pRoot->getNodeByPath("");
@@ -93,6 +96,9 @@ void basicCreateAndPrintAndEncoding()
     pChild2->setAttribute("aaa:something", "some value");
 
     pRoot->appendChild(pChild2);
+
+    Element *pChild3 = pDoc->createElement("child3");
+    pChild3->release();
 
     // Print
     DOMWriter writer;
@@ -133,4 +139,23 @@ void basicCreateAndPrintAndEncoding()
     writeToFile.setOptions(XMLWriter::PRETTY_PRINT);
     writeToFile.setEncoding("UTF-16", Poco::TextEncoding::byName("UTF-16"));
     writeToFile.writeNode(str, pDoc);
+}
+
+void CreateElement(Document *doc)
+{
+    Element *element = doc->createElement("Element");
+
+    //element->release();
+}
+
+void TestSimpleMemoryLeak()
+{
+    Document *doc = new Document();
+
+    for (int i = 0; i < 100000; i++)
+    {
+        CreateElement(doc);
+    }
+
+    doc->release();
 }
