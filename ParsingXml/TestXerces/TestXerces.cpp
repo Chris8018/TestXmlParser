@@ -46,6 +46,8 @@ void TestSimpleMemoryLeak();
 
 void TestSomeCase();
 
+void TestParser();
+
 bool toFile = false;
 
 class DOMPrintErrorHandler : public DOMErrorHandler
@@ -78,7 +80,7 @@ int main(void)
 
     //TestSimpleMemoryLeak();
 
-    TestSomeCase();
+    //TestSomeCase();
 
     return 0;
 }
@@ -682,6 +684,32 @@ void TestSomeCase()
 
     XMLPlatformUtils::Terminate();
 }
+
+void TestParser()
+{
+    std::cout << "Test Memory Leak" << std::endl;
+
+    // Initialze
+    try
+    {
+        XMLPlatformUtils::Initialize();
+    }
+    catch (const XMLException & e)
+    {
+        //std::cout << e.what() << std::endl;
+        return;
+    }
+
+    DOMImplementation *domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    DOMDocument *doc1 = domImpl->createDocument();
+
+    doc1->release();
+
+    XMLPlatformUtils::Terminate();
+}
+
 std::string convertUTF16_UTF8(XMLCh *str)
 {
     std::u16string str_16 = str;
