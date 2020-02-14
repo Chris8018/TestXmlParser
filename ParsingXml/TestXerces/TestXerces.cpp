@@ -7,6 +7,8 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMLSSerializer.hpp>
 
+#include <xercesc/dom/impl/DOMImplementationImpl.hpp>
+
 #include <xercesc/util/XMLString.hpp>
 
 #include <xercesc/dom/DOMErrorHandler.hpp>
@@ -42,6 +44,8 @@ void TryDomDocFragment();
 
 void TestSimpleMemoryLeak();
 
+void TestSomeCase();
+
 bool toFile = false;
 
 class DOMPrintErrorHandler : public DOMErrorHandler
@@ -72,7 +76,9 @@ int main(void)
 
     //TryDomDocFragment();
 
-    TestSimpleMemoryLeak();
+    //TestSimpleMemoryLeak();
+
+    TestSomeCase();
 
     return 0;
 }
@@ -615,6 +621,7 @@ void TestSimpleMemoryLeak()
         DOMImplementationRegistry::getDOMImplementation(u"");
 
     DOMDocument *doc1 = domImpl->createDocument();
+    //DOMImplementationImpl::
 
     for (int i = 0; i < 100000; i++)
     {
@@ -629,30 +636,52 @@ void TestSimpleMemoryLeak()
 void CreateElement(DOMDocument *doc)
 {
     DOMElement *element1 = doc->createElement(u"element1");
-    //doc->adoptNode()
-    //doc->setNamedItem(nullptr);
+
+    DOMAttr *attr1 = doc->createAttribute(u"name1");
+
+    DOMElement *element2 = doc->createElement(u"element2");
+
+    element1->setAttributeNode(attr1);
+
+    element1->appendChild(element2);
+
     element1->release();
-
-    //delete element1;
-
-    //auto docFrag = doc->createDocumentFragment();
-    //docFrag->appendChild(element1);
-
-    //docFrag->release();
-
-    //DOMNode *rem = doc->appendChild(element1);
-    //rem->release();
-    //element1->setAttribute(u"name1", u"value1");
-
-    //auto attr1 = element1->getAttributeNode(u"name1");
-    //element1->removeAttributeNode(attr1);
-
-    //attr1->release();
-
-    //doc->appendChild(ele1);
-    //doc->removeChild(ele1)->release();
 }
 
+void Case1(DOMDocument *doc)
+{
+    //auto element1 = doc->
+}
+
+void TestSomeCase()
+{
+    std::cout << "Test Memory Leak" << std::endl;
+
+    // Initialze
+    try
+    {
+        XMLPlatformUtils::Initialize();
+    }
+    catch (const XMLException & e)
+    {
+        //std::cout << e.what() << std::endl;
+        return;
+    }
+
+    DOMImplementation *domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    DOMDocument *doc1 = domImpl->createDocument();
+
+    //for (int i = 0; i < 100000; i++)
+    //{
+    //    CreateElement(doc1);
+    //}
+
+    doc1->release();
+
+    XMLPlatformUtils::Terminate();
+}
 std::string convertUTF16_UTF8(XMLCh *str)
 {
     std::u16string str_16 = str;

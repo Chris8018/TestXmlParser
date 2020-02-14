@@ -54,7 +54,10 @@ int main()
 
     //basicCreateAndPrintAndEncoding();
 
-    TestSimpleMemoryLeak();
+    //TestSimpleMemoryLeak();
+
+    Document *doc = new Document();
+    //doc->read
 
     return 0;
 }
@@ -145,7 +148,7 @@ void CreateElement(Document *doc)
 {
     Element *element = doc->createElement("Element");
 
-    //element->release();
+    element->release();
 }
 
 void TestSimpleMemoryLeak()

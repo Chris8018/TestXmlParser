@@ -544,7 +544,8 @@ void TestCase1()
     // Basic XML Node Create
 
     std::cout << "Test Case 1" << std::endl;
-
+    //int b = 0;
+    //auto a = new (b) float(1.0);
     std::shared_ptr<XmlElement> element1 =
         XercesAdapter::GetInstance()
         .CreateXmlElement(
