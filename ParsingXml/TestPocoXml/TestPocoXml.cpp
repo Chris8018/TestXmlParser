@@ -54,9 +54,9 @@ int main()
 
     //basicCreateAndPrintAndEncoding();
 
-    //TestSimpleMemoryLeak();
+    TestSimpleMemoryLeak();
 
-    Document *doc = new Document();
+    //Document *doc = new Document();
     //doc->read
 
     return 0;

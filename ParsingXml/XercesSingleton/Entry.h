@@ -16,9 +16,17 @@
 namespace xercesc_3_2
 {
     class DOMImplementation;
+
+    class DOMNode;
+
     class DOMDocument;
     class DOMElement;
-    class DOMNode;
+
+    class DOMProcessingInstruction;
+    class DOMComment;
+
+    class DOMText;
+    class DOMCDATASection;
 
     class DOMError;
 
@@ -33,6 +41,10 @@ namespace xercesc_3_2
 }
 namespace xercesc = xercesc_3_2;
 
+typedef std::map<std::string, std::string> Attributes;
+
+typedef char16_t XMLCh;
+
 class OtxDataType
 {
     //
@@ -40,12 +52,76 @@ class OtxDataType
 
 class XmlNode : public OtxDataType
 {
-    //
+protected:
+    std::shared_ptr<XmlNode> _parent = nullptr;
+public:
+    virtual std::shared_ptr<XmlNode> GetParent() const;
+    virtual void SetParent(std::shared_ptr<XmlNode> parentNode);
+
+    virtual bool HasParent() const;
 };
+
+//class A
+//{
+//    //
+//};
+//
+//class IXmlNodesList
+//{
+//    //
+//};
 
 class XmlElement;
 
-class XmlDocument : public OtxDataType
+class XmlCData : public XmlNode
+{
+private:
+    xercesc::DOMCDATASection *_internalCDataNode;
+
+public:
+    XmlCData(xercesc::DOMCDATASection *cdataNode);
+    virtual ~XmlCData();
+
+    xercesc::DOMCDATASection* GetDomCData() const;
+};
+
+class XmlText : public XmlNode
+{
+private:
+    xercesc::DOMText *_internalTextNode;
+
+public:
+    XmlText(xercesc::DOMText *textNode);
+    virtual ~XmlText();
+
+    xercesc::DOMText* GetDomText() const;
+};
+
+class XmlProcessingInstruction : public XmlNode
+{
+private:
+    xercesc::DOMProcessingInstruction *_internalPINode;
+
+public:
+    XmlProcessingInstruction(xercesc::DOMProcessingInstruction *piNode);
+    virtual ~XmlProcessingInstruction();
+
+    xercesc::DOMProcessingInstruction* GetDomPI() const;
+};
+
+class XmlComment : public XmlNode
+{
+private:
+    xercesc::DOMComment *_internalCommentNode;
+
+public:
+    XmlComment(xercesc::DOMComment *commentNode);
+    virtual ~XmlComment();
+
+    xercesc::DOMComment* GetDomComment() const;
+};
+
+class XmlDocument : public XmlNode
 {
 private:
     std::shared_ptr<XmlElement> _rootElement;
@@ -66,27 +142,29 @@ public:
 
     std::shared_ptr<XmlElement> GetRootElement() const;
 
+    std::shared_ptr<XmlNode> GetParent() const override;
+    void SetParent(std::shared_ptr<XmlNode> parentNode) override;
+
+    bool HasParent() const override;
+
     std::string ToString() const;
 
     //bool operator==(...) const;
     //bool IsEqual(...) const;
 };
 
-class XmlElement : public OtxDataType
+class XmlElement : public XmlNode
 {
 private:
     xercesc::DOMElement *_internalElement;
 
-    bool _isRoot = false;
+    //std::list<XmlElement> _children;
 public:
     XmlElement(xercesc::DOMElement *element);
     virtual ~XmlElement();
 
     xercesc::DOMElement* GetDomElement() const;
 
-    bool HasParent() const;
-
-    void SetIsRoot(const bool &isRoot);
     bool IsRoot() const;
 
     //void ClearText();
@@ -112,21 +190,10 @@ public:
 class XercesXmlWriter
 {
 private:
-    //std::shared_ptr<xercesc::DOMLSSerializer> _writer;
-
-    //std::shared_ptr<xercesc::DOMLSOutput> _outStream; // DON'T NEED
-
-    //std::shared_ptr<xercesc::DOMConfiguration> _configuration; // DON'T NEED
-
-    //std::shared_ptr<xercesc::DOMErrorHandler> _errorHandler;
     xercesc::DOMLSSerializer *_writer;
 
     std::shared_ptr<xercesc::DOMErrorHandler> _errorHandler;
     xercesc::DOMLSOutput *_outStream;
-    
-
-    //void Init();
-    //void Clear();
 
     void SetErrorHandler();
     
@@ -145,22 +212,15 @@ public:
     std::string WriteToString(xercesc::DOMNode *domNode);
 };
 
-//class XStr
-//{
-//public:
-//    static std::shared_ptr<XMLCh> StringToXmlCh(const std::string &str);
-//    static std::string XmlChToString(const XMLCh* xmlCh);
-//};
-
 class StringToXmlCh
 {
 private:
-    char16_t *_xmlCh;
+    XMLCh *_xmlCh;
 public:
     StringToXmlCh(const std::string &str);
     virtual ~StringToXmlCh();
 
-    char16_t* Get() const;
+    XMLCh* Get() const;
 };
 
 class XmlChToString
@@ -168,7 +228,7 @@ class XmlChToString
 private:
     char *_strChars;
 public:
-    XmlChToString(const char16_t *xmlCh);
+    XmlChToString(const XMLCh *xmlCh);
     virtual ~XmlChToString();
 
     std::string Get() const;
@@ -179,7 +239,7 @@ class XercesAdapter
 private:
     XercesAdapter();
 
-    // Don't use smart pointer OR delete this manually
+    // Don't use Smart Pointer OR deleting _domImpl manually
     // It will be deleted by XercesC itself
     xercesc::DOMImplementation *_domImpl;
 
@@ -220,7 +280,7 @@ public:
     xercesc::DOMDocument* CreateEmptyDOMDocument();
     
     std::shared_ptr<XmlElement> CreateXmlElement(
-        const std::map<std::string, std::string> &attributes,
+        const Attributes &attributes,
         const std::string &name,
         const std::string &text
     );
@@ -239,7 +299,7 @@ public:
     );
 
     void SetXmlElementAttributes(
-        std::map<std::string, std::string> attributes,
+        const Attributes &attributes,
         std::shared_ptr<XmlElement> element
     );
 
@@ -253,12 +313,36 @@ public:
 class XmlLib
 {
 private:
-    static std::string GetSupportXmlVersion(const std::string &encoding);
+    //static std::string GetSupportXmlVersion(const std::string &encoding);
 public:
-    static std::shared_ptr<XmlDocument> CreateXmlDocument(std::shared_ptr<XmlElement> rootNode, const std::string &version, const std::string &encoding, const bool &standalone);
-    static std::shared_ptr<XmlElement> CreateXmlElement(const std::string &name, const std::string &text, const std::map<std::string, std::string> &attributes);
+    static std::shared_ptr<XmlDocument> CreateXmlDocument(
+        const std::string &encoding,
+        std::shared_ptr<XmlElement> rootNode,
+        const bool &standalone,
+        const std::string &version
+    );
+    static std::shared_ptr<XmlElement> CreateXmlElement(
+        const Attributes &attributes,
+        const std::string &name,
+        const std::string &text
+    );
     
-    static void AddXmlChildElement(std::shared_ptr<XmlElement> parent, std::shared_ptr<XmlElement> child, std::shared_ptr<XmlElement> insertBefore);
+    static void AddXmlChildElement(
+        std::shared_ptr<XmlElement> child,
+        std::shared_ptr<XmlElement> insertBefore,
+        std::shared_ptr<XmlElement> parent
+    );
+
+    static void SetXmlElementAttributes(
+        const Attributes &attributes,
+        std::shared_ptr<XmlElement> element
+    );
+
+    static void SetXmlElementAttribute(
+        std::shared_ptr<XmlElement> element,
+        const std::string &name,
+        const std::string &value
+    );
 };
 
 static void TestCase1();

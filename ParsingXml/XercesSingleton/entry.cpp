@@ -29,9 +29,17 @@ using xercesc::DOMLSSerializer;
 using xercesc::DOMConfiguration;
 using xercesc::DOMLSOutput;
 
+using xercesc::DOMNode;
+
 using xercesc::DOMDocument;
 using xercesc::DOMElement;
-using xercesc::DOMNode;
+
+using xercesc::DOMProcessingInstruction;
+using xercesc::DOMComment;
+
+using xercesc::DOMText;
+using xercesc::DOMCDATASection;
+using xercesc::DOMAttr;
 
 using xercesc::DOMException;
 
@@ -60,6 +68,104 @@ using xercesc::TranscodeFromStr;
 
 #include <sstream>
 
+// XmlNode----------------------------------------------------------
+
+std::shared_ptr<XmlNode> XmlNode::GetParent() const
+{
+    return _parent;
+}
+
+void XmlNode::SetParent(std::shared_ptr<XmlNode> parentNode)
+{
+    _parent = parentNode;
+}
+
+bool XmlNode::HasParent() const
+{
+    return _parent != nullptr;
+}
+
+//------------------------------------------------------------------
+
+// XmlCData---------------------------------------------------------
+
+XmlCData::XmlCData(DOMCDATASection *cdataNode)
+{
+    _internalCDataNode = cdataNode;
+}
+
+XmlCData::~XmlCData()
+{
+    if (!HasParent())
+        _internalCDataNode->release();
+}
+
+DOMCDATASection* XmlCData::GetDomCData() const
+{
+    return _internalCDataNode;
+}
+
+//------------------------------------------------------------------
+
+// XmlText----------------------------------------------------------
+
+XmlText::XmlText(DOMText *textNode)
+{
+    _internalTextNode = textNode;
+}
+
+XmlText::~XmlText()
+{
+    if (!HasParent())
+        _internalTextNode->release();
+}
+
+DOMText* XmlText::GetDomText() const
+{
+    return _internalTextNode;
+}
+
+//------------------------------------------------------------------
+
+// XmlProcessingInstruction-----------------------------------------
+
+XmlProcessingInstruction::XmlProcessingInstruction(DOMProcessingInstruction *piNode)
+{
+    _internalPINode = piNode;
+}
+
+XmlProcessingInstruction::~XmlProcessingInstruction()
+{
+    if (!HasParent())
+        _internalPINode->release();
+}
+
+DOMProcessingInstruction* XmlProcessingInstruction::GetDomPI() const
+{
+    return _internalPINode;
+}
+
+//------------------------------------------------------------------
+
+// XmlComment-------------------------------------------------------
+
+XmlComment::XmlComment(DOMComment *commentNode)
+{
+    _internalCommentNode = commentNode;
+}
+
+XmlComment::~XmlComment()
+{
+    if (!HasParent())
+        _internalCommentNode->release();
+}
+
+DOMComment* XmlComment::GetDomComment() const
+{
+    return _internalCommentNode;
+}
+//------------------------------------------------------------------
+
 // XmlDocument------------------------------------------------------
 XmlDocument::XmlDocument(std::shared_ptr<XmlElement> rootElement)
     : XmlDocument(rootElement, "UTF-8", "1.0", "no") {};
@@ -68,11 +174,15 @@ XmlDocument::XmlDocument(
     std::shared_ptr<XmlElement> rootElement,
     const std::string &encoding,
     const std::string &version,
-    const std::string &standalone)
+    const std::string &standalone
+)
 {
-    // TODO: Throw if Element HasParent
+    if (_rootElement->HasParent())
+    {
+        // TODO: Throw if Element HasParent
+    }
+
     _rootElement = rootElement;
-    _rootElement->SetIsRoot(true);
 
     _encoding = encoding;
     _version = version;
@@ -94,6 +204,21 @@ std::string XmlDocument::ToString() const
     return "";
 }
 
+std::shared_ptr<XmlNode> XmlDocument::GetParent() const
+{
+    return nullptr;
+}
+
+void XmlDocument::SetParent(std::shared_ptr<XmlNode> parentNode)
+{
+    //
+}
+
+bool XmlDocument::HasParent() const
+{
+    return false;
+}
+
 //------------------------------------------------------------------
 
 // XmlElement-------------------------------------------------------
@@ -105,8 +230,8 @@ XmlElement::XmlElement(DOMElement *element)
 
 XmlElement::~XmlElement()
 {
-    //_internalElement->release();
-    _internalElement = nullptr;
+    if (!HasParent())
+        _internalElement->release();
 }
 
 DOMElement* XmlElement::GetDomElement() const
@@ -114,25 +239,12 @@ DOMElement* XmlElement::GetDomElement() const
     return _internalElement;
 }
 
-bool XmlElement::HasParent() const
-{
-    if (_isRoot ||
-        _internalElement->getParentNode() != nullptr)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-void XmlElement::SetIsRoot(const bool &isRoot)
-{
-    _isRoot = isRoot;
-}
-
 bool XmlElement::IsRoot() const
 {
-    return _isRoot;
+    auto document =
+        std::dynamic_pointer_cast<XmlDocument>(_parent);
+
+    return document != nullptr;
 }
 
 std::string XmlElement::ToString() const
@@ -144,25 +256,64 @@ std::string XmlElement::ToString() const
 //------------------------------------------------------------------
 
 // XmlLib-----------------------------------------------------------
-
-std::shared_ptr<XmlDocument> XmlLib::CreateXmlDocument(std::shared_ptr<XmlElement> rootNode, const std::string &version, const std::string &encoding, const bool &standalone)
+std::shared_ptr<XmlDocument> XmlLib::CreateXmlDocument(
+    const std::string &encoding,
+    std::shared_ptr<XmlElement> rootNode,
+    const bool &standalone,
+    const std::string &version
+)
 {
     /*std::string _version = CorrectingXmlVersion(version);
     return std::make_shared<XmlDocument>(rootNode, _version, encoding, standalone);*/
     return nullptr;
 }
 
-std::string XmlLib::GetSupportXmlVersion(const std::string &encoding)
+std::shared_ptr<XmlElement> XmlLib::CreateXmlElement(
+    const Attributes &attributes,
+    const std::string &name,
+    const std::string &text
+)
 {
-    std::string result = encoding;
+    return nullptr;
+}
 
-    if (result != "1.0" || result != "1.1")
-    {
-        // TODO: Write Log Warning
-        result = DEFAULT_XML_VERSION; // Separate to Macro
-    }
+//std::string XmlLib::GetSupportXmlVersion(const std::string &encoding)
+//{
+//    std::string result = encoding;
+//
+//    if (result != "1.0" || result != "1.1")
+//    {
+//        // TODO: Write Log Warning
+//        result = DEFAULT_XML_VERSION; // Separate to Macro
+//    }
+//
+//    return result;
+//}
 
-    return result;
+void XmlLib::AddXmlChildElement(
+    std::shared_ptr<XmlElement> child,
+    std::shared_ptr<XmlElement> insertBefore,
+    std::shared_ptr<XmlElement> parent
+)
+{
+    //
+}
+
+void XmlLib::SetXmlElementAttributes(
+    const Attributes &attributes,
+    std::shared_ptr<XmlElement> element
+)
+{
+    //
+}
+
+void XmlLib::SetXmlElementAttribute(
+    std::shared_ptr<XmlElement> element,
+    const std::string &name,
+    const std::string &value
+)
+{
+    //
 }
 
 //------------------------------------------------------------------
@@ -186,7 +337,6 @@ bool DOMPrintErrorHandler::handleError(const DOMError &domError)
     else
         std::cerr << "\nFatal Message: ";
 
-    // Not Use XercesAdapter Converter to avoid Circular Dependancy
     std::string msg = XmlChToString(domError.getMessage()).Get();
 
     std::cerr << msg << std::endl;
@@ -208,10 +358,8 @@ XercesXmlWriter::XercesXmlWriter(DOMImplementation *domImpl)
 XercesXmlWriter::~XercesXmlWriter()
 {
     _outStream->release();
-    _outStream = nullptr;
 
     _writer->release();
-    _writer = nullptr;
 }
 
 DOMConfiguration* XercesXmlWriter::GetConfiguration() const
@@ -221,7 +369,10 @@ DOMConfiguration* XercesXmlWriter::GetConfiguration() const
 
 void XercesXmlWriter::SetErrorHandler()
 {
-    GetConfiguration()->setParameter(ERROR_HANDLER, _errorHandler.get());
+    GetConfiguration()->setParameter(
+        ERROR_HANDLER,
+        _errorHandler.get()
+    );
 }
 
 void XercesXmlWriter::SetEncoding()
@@ -236,13 +387,18 @@ void XercesXmlWriter::SetEncoding(const std::string &encoding)
 
 bool XercesXmlWriter::CanSetPrettyPrint()
 {
-    return GetConfiguration()->canSetParameter(PRETTY_PRINT, true);
+    return GetConfiguration()->canSetParameter(
+        PRETTY_PRINT,
+        true
+    );
 }
 
 void XercesXmlWriter::SetPrettyPrintFormat()
 {
     if (CanSetPrettyPrint())
-        GetConfiguration()->setParameter(PRETTY_PRINT, true);
+        GetConfiguration()->setParameter(
+            PRETTY_PRINT,
+            true);
 }
 
 std::string XercesXmlWriter::WriteToString(DOMNode *domNode)
@@ -290,12 +446,8 @@ XercesAdapter::XercesAdapter()
 XercesAdapter::~XercesAdapter()
 {
     delete _xmlStringWriter;
-    _xmlStringWriter = nullptr;
 
     _dummyDoc->release();
-    _dummyDoc = nullptr;
-
-    _domImpl = nullptr;
 
     // TODO: considering catching error
     XMLPlatformUtils::Terminate();
@@ -324,7 +476,7 @@ DOMDocument* XercesAdapter::CreateEmptyDOMDocument()
 }
 
 std::shared_ptr<XmlElement> XercesAdapter::CreateXmlElement(
-    const std::map<std::string, std::string> &attributes,
+    const Attributes &attributes,
     const std::string &name,
     const std::string &text
 )
@@ -346,11 +498,16 @@ std::shared_ptr<XmlElement> XercesAdapter::CreateXmlElement(
 
         throw new std::exception(errorMessage.c_str());
     }
+    catch (...)
+    {
+        // TODO: unexpected error
+    }
 
     std::shared_ptr<XmlElement> xmlElement =
         std::make_shared<XmlElement>(element);
 
     // TODO: Check Empty String & Switch to SetTextFunciton
+    // Consider do it differently
     element->setTextContent(StringToXmlCh(text).Get());
 
     // Todo: Set Attributes
@@ -372,7 +529,7 @@ bool XercesAdapter::IsWhiteSpaceString(const std::string &str)
 }
 
 void XercesAdapter::SetXmlElementAttributes(
-    std::map<std::string, std::string> attributes,
+    const Attributes &attributes,
     std::shared_ptr<XmlElement> element
 )
 {
@@ -440,12 +597,17 @@ std::shared_ptr<XmlDocument> XercesAdapter::CreateXmlDocument(
 
     std::string _standalone = standalone ? "yes" : "no";
 
-    return std::make_shared<XmlDocument>(
+    std::shared_ptr<XmlDocument> document =
+        std::make_shared<XmlDocument>(
         root,
         encoding,
         _version,
         _standalone
         );
+
+    root->SetParent(document);
+
+    return document;
 }
 
 bool XercesAdapter::IsNotValidEncoding(const std::string &encoding)
@@ -480,6 +642,7 @@ void XercesAdapter::AddXmlChildElement(
 
     try
     {
+        // TODO: Re-write this
         _parent->insertBefore(_child, _insertBefore);
     }
     catch (const DOMException &e)
@@ -489,6 +652,12 @@ void XercesAdapter::AddXmlChildElement(
 
         throw new std::exception(errorMessage.c_str());
     }
+    catch (...)
+    {
+        // TODO: Unexpected Error message
+    }
+
+    child->SetParent(parent);
 }
 ////---------------------------------------------------------
 
@@ -511,7 +680,7 @@ XMLCh* StringToXmlCh::Get() const
     return _xmlCh;
 }
 
-XmlChToString::XmlChToString(const char16_t *xmlCh)
+XmlChToString::XmlChToString(const XMLCh *xmlCh)
 {
     _strChars = XMLString::transcode(xmlCh);
 }

@@ -6,6 +6,7 @@
 // DOM (if you want SAX, then that's a different include)
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMLSSerializer.hpp>
+//#include <xercesc/dom/DOMNode.hpp>
 
 #include <xercesc/dom/impl/DOMImplementationImpl.hpp>
 
@@ -39,6 +40,7 @@ XERCES_CPP_NAMESPACE_USE
 void CreateAndPrint();
 void CreateAndPrintSmartPointer();
 std::string convertUTF16_UTF8(XMLCh *str);
+void CountingInternalNode(DOMElement *element);
 
 void TryDomDocFragment();
 
@@ -49,6 +51,35 @@ void TestSomeCase();
 void TestParser();
 
 bool toFile = false;
+
+class SampleFactory
+{
+public:
+    static void MakeXmlNode(DOMElement *n)
+    {
+        std::cout << "Make DOMElement" << std::endl;
+    }
+
+    static void MakeXmlNode(DOMAttr *n)
+    {
+        std::cout << "Make DOMAttr" << std::endl;
+    }
+
+    static void MakeXmlNode(DOMText *n)
+    {
+        std::cout << "Make DOMText" << std::endl;
+    }
+
+    static void MakeXmlNode(DOMProcessingInstruction *n)
+    {
+        std::cout << "Make DOMProcessingInstruction" << std::endl;
+    }
+
+    static void MakeXmlNode(DOMComment *n)
+    {
+        std::cout << "Make DOMComment" << std::endl;
+    }
+};
 
 class DOMPrintErrorHandler : public DOMErrorHandler
 {
@@ -78,7 +109,7 @@ int main(void)
 
     //TryDomDocFragment();
 
-    //TestSimpleMemoryLeak();
+    TestSimpleMemoryLeak();
 
     //TestSomeCase();
 
@@ -625,7 +656,8 @@ void TestSimpleMemoryLeak()
     DOMDocument *doc1 = domImpl->createDocument();
     //DOMImplementationImpl::
 
-    for (int i = 0; i < 100000; i++)
+    auto iterateTime = 1;
+    for (int i = 0; i < iterateTime; i++)
     {
         CreateElement(doc1);
     }
@@ -639,13 +671,61 @@ void CreateElement(DOMDocument *doc)
 {
     DOMElement *element1 = doc->createElement(u"element1");
 
+    element1->setTextContent(u"This is a TEST TEXT!!");
+
     DOMAttr *attr1 = doc->createAttribute(u"name1");
+    DOMAttr *attr2 = doc->createAttribute(u"name2");
+    DOMAttr *attr3 = doc->createAttribute(u"name3");
+    DOMAttr *attr4 = doc->createAttribute(u"name4");
+    DOMAttr *attr5 = doc->createAttribute(u"name5");
 
     DOMElement *element2 = doc->createElement(u"element2");
+    DOMElement *element3 = doc->createElement(u"element3");
+    DOMElement *element4 = doc->createElement(u"element4");
+
+    DOMText *text1 = doc->createTextNode(u"Text1");
+    DOMText *text2 = doc->createTextNode(u"Text2");
+    DOMText *text3 = doc->createTextNode(u"Text3");
+    DOMText *text4 = doc->createTextNode(u"Text4");
+    DOMText *text5 = doc->createTextNode(u"Text5");
+
+    DOMProcessingInstruction *pi1 = doc->createProcessingInstruction(u"nonTarget", u"a='b'");
+
+    DOMComment *comment1 = doc->createComment(u"This is a test comment");
+    DOMComment *comment2 = doc->createComment(u"This is a test comment");
+    DOMComment *comment3 = doc->createComment(u"This is a test comment");
+    DOMComment *comment4 = doc->createComment(u"This is a test comment");
 
     element1->setAttributeNode(attr1);
+    element1->setAttributeNode(attr2);
+    element1->setAttributeNode(attr3);
+    element1->setAttributeNode(attr4);
+
+    //element1->appendChild(attr5); -> ERROR
 
     element1->appendChild(element2);
+    element1->appendChild(element3);
+    element1->appendChild(element4);
+
+    element1->appendChild(text1);
+    element1->appendChild(text2);
+    element1->appendChild(text3);
+    element1->appendChild(text4);
+    element1->appendChild(text5);
+
+    element1->appendChild(pi1);
+
+    element1->appendChild(comment1);
+    element1->appendChild(comment2);
+    element1->appendChild(comment3);
+    element1->appendChild(comment4);
+
+    CountingInternalNode(element1);
+
+    //auto temp = element1->getNodeValue();
+    //element1->setNodeValue(u"WHAT!!!");
+    
+    //std::cout << XMLString::transcode(temp) << std::endl;
 
     element1->release();
 }
@@ -737,4 +817,59 @@ bool DOMPrintErrorHandler::handleError(const DOMError &domError)
 
     // Instructs the serializer to continue serialization if possible.
     return true;
+}
+
+void CountingInternalNode(DOMElement *element)
+{
+    auto nodeList = element->getChildNodes();
+
+    int attributeCounter = 0,
+        textCounter = 0,
+        elementCounter = 0,
+        PICounter = 0,
+        commentCounter = 0,
+        others = 0;
+
+    for (int i = 0; i < nodeList->getLength(); i++)
+    {
+        //SampleFactory::MakeXmlNode(nodeList->item(i));
+
+        if (nodeList->item(i)->getNodeType()
+            == DOMNode::NodeType::TEXT_NODE)
+        {
+            textCounter++;
+        }
+        else if (nodeList->item(i)->getNodeType()
+            == DOMNode::NodeType::ATTRIBUTE_NODE)
+        {
+            attributeCounter++;
+        }
+        else if (nodeList->item(i)->getNodeType()
+            == DOMNode::NodeType::ELEMENT_NODE)
+        {
+            elementCounter++;
+        }
+        else if (nodeList->item(i)->getNodeType()
+            == DOMNode::NodeType::COMMENT_NODE)
+        {
+            commentCounter++;
+        }
+        else if (nodeList->item(i)->getNodeType()
+            == DOMNode::NodeType::PROCESSING_INSTRUCTION_NODE)
+        {
+            PICounter++;
+        }
+        else
+        {
+            others++;
+        }
+    }
+
+    std::cout <<
+        "Text: " << textCounter << "\n" <<
+        "Attribute: " << attributeCounter << "\n" <<
+        "Element: " << elementCounter << "\n" <<
+        "Comment: " << commentCounter << "\n" <<
+        "PI: " << PICounter << "\n"
+        "Others: " << others << "\n";
 }
