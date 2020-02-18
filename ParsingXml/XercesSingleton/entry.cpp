@@ -198,12 +198,29 @@ XmlDocument::XmlDocument(
     const std::string &encoding,
     const std::string &version,
     const std::string &standalone
+) : XmlDocument(
+    XercesAdapter::GetInstance().CreateEmptyDOMDocument(),
+    rootElement,
+    encoding,
+    version,
+    standalone
+) {}
+
+XmlDocument::XmlDocument(
+    xercesc::DOMDocument *documentNode,
+    std::shared_ptr<XmlElement> rootElement,
+    const std::string &encoding,
+    const std::string &version,
+    const std::string &standalone
 )
 {
     if (_rootElement->HasParent())
     {
         // TODO: Throw if Element HasParent
+        throw std::exception("Has parent");
     }
+
+    _internalDocument = documentNode;
 
     _rootElement = rootElement;
 

@@ -136,6 +136,8 @@ class XmlElement;
 class XmlDocument : public XmlNode
 {
 private:
+    xercesc::DOMDocument *_internalDocument;
+
     std::shared_ptr<XmlElement> _rootElement;
 
     std::string _encoding;
@@ -143,6 +145,14 @@ private:
     std::string _standalone;
 
 public:
+    XmlDocument(
+        xercesc::DOMDocument *documentNode,
+        std::shared_ptr<XmlElement> rootElement,
+        const std::string &encoding,
+        const std::string &version,
+        const std::string &standalone
+    );
+
     XmlDocument(std::shared_ptr<XmlElement> rootElement);
     XmlDocument(
         std::shared_ptr<XmlElement> rootElement,
