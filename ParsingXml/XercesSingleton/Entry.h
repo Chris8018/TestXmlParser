@@ -41,7 +41,7 @@ namespace xercesc_3_2
 }
 namespace xercesc = xercesc_3_2;
 
-typedef std::map<std::string, std::string> Attributes;
+typedef std::map<std::string, std::string> XmlAttributes;
 
 typedef char16_t XMLCh;
 
@@ -73,53 +73,65 @@ public:
 
 class XmlElement;
 
-class XmlCData : public XmlNode
-{
-private:
-    xercesc::DOMCDATASection *_internalCDataNode;
+//class XmlCData : public XmlNode
+//{
+//private:
+//    xercesc::DOMCDATASection *_internalCDataNode;
+//
+//public:
+//    XmlCData(xercesc::DOMCDATASection *cdataNode);
+//    virtual ~XmlCData();
+//
+//    xercesc::DOMCDATASection* GetDomCData() const;
+//};
+//
+//class XmlText : public XmlNode
+//{
+//private:
+//    xercesc::DOMText *_internalTextNode;
+//
+//public:
+//    XmlText(xercesc::DOMText *textNode);
+//    virtual ~XmlText();
+//
+//    xercesc::DOMText* GetDomText() const;
+//};
+//
+//class XmlProcessingInstruction : public XmlNode
+//{
+//private:
+//    xercesc::DOMProcessingInstruction *_internalPINode;
+//
+//public:
+//    XmlProcessingInstruction(xercesc::DOMProcessingInstruction *piNode);
+//    virtual ~XmlProcessingInstruction();
+//
+//    xercesc::DOMProcessingInstruction* GetDomPI() const;
+//};
+//
+//class XmlComment : public XmlNode
+//{
+//private:
+//    xercesc::DOMComment *_internalCommentNode;
+//
+//public:
+//    XmlComment(xercesc::DOMComment *commentNode);
+//    virtual ~XmlComment();
+//
+//    xercesc::DOMComment* GetDomComment() const;
+//};
 
-public:
-    XmlCData(xercesc::DOMCDATASection *cdataNode);
-    virtual ~XmlCData();
-
-    xercesc::DOMCDATASection* GetDomCData() const;
-};
-
-class XmlText : public XmlNode
-{
-private:
-    xercesc::DOMText *_internalTextNode;
-
-public:
-    XmlText(xercesc::DOMText *textNode);
-    virtual ~XmlText();
-
-    xercesc::DOMText* GetDomText() const;
-};
-
-class XmlProcessingInstruction : public XmlNode
-{
-private:
-    xercesc::DOMProcessingInstruction *_internalPINode;
-
-public:
-    XmlProcessingInstruction(xercesc::DOMProcessingInstruction *piNode);
-    virtual ~XmlProcessingInstruction();
-
-    xercesc::DOMProcessingInstruction* GetDomPI() const;
-};
-
-class XmlComment : public XmlNode
-{
-private:
-    xercesc::DOMComment *_internalCommentNode;
-
-public:
-    XmlComment(xercesc::DOMComment *commentNode);
-    virtual ~XmlComment();
-
-    xercesc::DOMComment* GetDomComment() const;
-};
+//class XmlOtherNode : public XmlNode
+//{
+//private:
+//    xercesc::DOMNode *_internalNode;
+//
+//public:
+//    XmlOtherNode(xercesc::DOMNode *node);
+//    virtual ~XmlOtherNode();
+//
+//    xercesc::DOMNode* GetDomNode() const;
+//};
 
 class XmlDocument : public XmlNode
 {
@@ -158,7 +170,6 @@ class XmlElement : public XmlNode
 private:
     xercesc::DOMElement *_internalElement;
 
-    //std::list<XmlElement> _children;
 public:
     XmlElement(xercesc::DOMElement *element);
     virtual ~XmlElement();
@@ -255,7 +266,7 @@ private:
     static bool IsWhiteSpaceString(const std::string &str);
 
     // TODO: Change encoding to Enum
-    static bool IsNotValidEncoding(const std::string &encoding);
+    static bool IsValidEncoding(const std::string &encoding);
     // std::string stringEncoding // TODO: Implement + Change Name
 
     static bool IsValidXmlVersion(const std::string &version);
@@ -280,7 +291,7 @@ public:
     xercesc::DOMDocument* CreateEmptyDOMDocument();
     
     std::shared_ptr<XmlElement> CreateXmlElement(
-        const Attributes &attributes,
+        const XmlAttributes &attributes,
         const std::string &name,
         const std::string &text
     );
@@ -299,7 +310,7 @@ public:
     );
 
     void SetXmlElementAttributes(
-        const Attributes &attributes,
+        const XmlAttributes &attributes,
         std::shared_ptr<XmlElement> element
     );
 
@@ -322,7 +333,7 @@ public:
         const std::string &version
     );
     static std::shared_ptr<XmlElement> CreateXmlElement(
-        const Attributes &attributes,
+        const XmlAttributes &attributes,
         const std::string &name,
         const std::string &text
     );
@@ -334,7 +345,7 @@ public:
     );
 
     static void SetXmlElementAttributes(
-        const Attributes &attributes,
+        const XmlAttributes &attributes,
         std::shared_ptr<XmlElement> element
     );
 
