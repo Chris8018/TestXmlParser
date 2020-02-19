@@ -656,13 +656,27 @@ void TestSimpleMemoryLeak()
     DOMDocument *doc1 = domImpl->createDocument();
     //DOMImplementationImpl::
 
-    auto iterateTime = 1;
-    for (int i = 0; i < iterateTime; i++)
+    //auto iterateTime = 1;
+    //for (int i = 0; i < iterateTime; i++)
+    //{
+    //    CreateElement(doc1);
+    //}
+
+    DOMDocument *doc2 = domImpl->createDocument();
+
+    auto element1 = doc1->createElement(u"element1");
+
+    auto element2 = doc1->createElement(u"element1");
+
+    if (element1->isEqualNode(element2))
     {
-        CreateElement(doc1);
+        std::cout << "E1 == E2" << std::endl;
     }
+    else
+        std::cout << "E1 != E2" << std::endl;
 
     doc1->release();
+    doc2->release();
 
     XMLPlatformUtils::Terminate();
 }
