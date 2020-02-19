@@ -153,9 +153,9 @@ void XmlDocumentWrapper::NotifyDeepValueChanged()
     }
 }
 
-DOMNode* XmlDocumentWrapper::ImportNode(DOMElement *original, bool deep)
+DOMNode* XmlDocumentWrapper::ImportNode(DOMElement *toBeImport, bool deep)
 {
-    return _internalDocument->importNode(original, deep);
+    return _internalDocument->importNode(toBeImport, deep);
 }
 
 std::string XmlDocumentWrapper::ToString() const
@@ -204,6 +204,12 @@ void XmlElementWrapper::SetParent(std::shared_ptr<XmlNodeWrapper> parentNode)
 bool XmlElementWrapper::HasParent() const
 {
     return _parent != nullptr;
+}
+
+
+std::string XmlElementWrapper::GetTagName() const
+{
+    return XmlChToString(_internalElement->getTagName()).Get();
 }
 
 void XmlElementWrapper::NotifyDeepValueChanged()
@@ -267,6 +273,13 @@ void XmlElementWrapper::InsertChildBefore(
         insertBefore->GetDomElement();
 
     this->_internalElement->insertBefore(_child, _insertBefore);
+}
+
+std::shared_ptr<XmlElementWrapper> XmlElementWrapper::CopyElement(bool deep) const
+{
+    DOMElement *copy = static_cast<DOMElement*>(_internalElement->cloneNode(deep));
+
+    return std::make_shared<XmlElementWrapper>(copy);
 }
 
 std::string XmlElementWrapper::ToString() const
@@ -546,12 +559,18 @@ std::shared_ptr<XmlElementWrapper> XercesAdapter::CreateXmlElement(
     const std::string &text
 )
 {
-    DOMElement *element = nullptr;
+    std::shared_ptr<XmlElementWrapper> xmlElement;
 
     try
     {
-        element =
+        DOMElement *element =
             _dummyDoc->createElement(StringToXmlCh(name).Get());
+
+        xmlElement = std::make_shared<XmlElementWrapper>(element);
+
+        SetXmlElementText(xmlElement, text);
+
+        xmlElement->SetAttributes(attributes);
     }
     catch (const DOMException &e)
     {
@@ -569,12 +588,6 @@ std::shared_ptr<XmlElementWrapper> XercesAdapter::CreateXmlElement(
         throw std::exception("Unexpected Error");
     }
 
-    std::shared_ptr<XmlElementWrapper> xmlElement =
-        std::make_shared<XmlElementWrapper>(element);
-
-    SetXmlElementText(xmlElement, text);
-
-    xmlElement->SetAttributes(attributes);
 
     return xmlElement;
 }
@@ -722,11 +735,35 @@ void XercesAdapter::SetXmlElementText(
 }
 
 std::shared_ptr<XmlElementWrapper> XercesAdapter::GetXmlRootElement(
-    std::shared_ptr<XmlDocumentWrapper> xmlDocument
-)
+    const std::shared_ptr<XmlDocumentWrapper> xmlDocument
+) const
 {
     return xmlDocument->GetRootElement();
 }
+
+std::string XercesAdapter::GetXmlElementName(
+    const std::shared_ptr<XmlElementWrapper> xmlElement
+) const
+{
+    return xmlElement->GetTagName();
+}
+
+std::shared_ptr<XmlElementWrapper> XercesAdapter::CopyXmlElement(
+    const std::shared_ptr<XmlElementWrapper> original
+)
+{
+    return original->CopyElement();
+}
+
+std::list<std::shared_ptr<XmlElementWrapper>> XercesAdapter::GetXmlElementChildElements(
+    const std::shared_ptr<XmlElementWrapper> element,
+    const std::string &elementName
+) const
+{
+    // TODO: Implement
+    return std::list<std::shared_ptr<XmlElementWrapper>>();
+}
+
 ////---------------------------------------------------------
 
 //// Converter-----------------------------------------------

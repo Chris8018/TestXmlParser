@@ -68,7 +68,7 @@ private:
 
     std::string _encoding;
 
-    xercesc::DOMNode* ImportNode(xercesc::DOMElement *original, bool deep = true);
+    xercesc::DOMNode* ImportNode(xercesc::DOMElement *toBeImport, bool deep = true);
 
 public:
     XmlDocumentWrapper(
@@ -117,6 +117,8 @@ public:
 
     bool HasParent() const;
 
+    std::string GetTagName() const;
+
     void NotifyDeepValueChanged() override;
 
     std::string GetText() const;
@@ -130,6 +132,8 @@ public:
         std::shared_ptr<XmlElementWrapper> child,
         std::shared_ptr<XmlElementWrapper> insertBefore
     );
+
+    std::shared_ptr<XmlElementWrapper> CopyElement(bool deep = true) const;
 
     std::string ToString() const override;
 
@@ -276,8 +280,21 @@ public:
     );
 
     std::shared_ptr<XmlElementWrapper> GetXmlRootElement(
-        std::shared_ptr<XmlDocumentWrapper> xmlDocument
+        const std::shared_ptr<XmlDocumentWrapper> xmlDocument
+    ) const;
+
+    std::string GetXmlElementName(
+        const std::shared_ptr<XmlElementWrapper> xmlElement
+    ) const;
+
+    std::shared_ptr<XmlElementWrapper> CopyXmlElement(
+        const std::shared_ptr<XmlElementWrapper> original
     );
+
+    std::list<std::shared_ptr<XmlElementWrapper>> GetXmlElementChildElements(
+        const std::shared_ptr<XmlElementWrapper> element,
+        const std::string &elementName
+    ) const;
 };
 
 class XmlLib
