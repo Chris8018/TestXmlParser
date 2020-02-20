@@ -510,12 +510,12 @@ XercesAdapter::XercesAdapter()
 
     _dummyDoc = _domImpl->createDocument();
 
-    _xmlStringWriter = new XercesXmlWriter(_domImpl);
+    //_xmlStringWriter = new XercesXmlWriter(this->_domImpl);
 }
 
 XercesAdapter::~XercesAdapter()
 {
-    delete _xmlStringWriter;
+    //delete _xmlStringWriter;
 
     _dummyDoc->release();
 
@@ -531,21 +531,29 @@ XercesAdapter &XercesAdapter::GetInstance()
 
 std::string XercesAdapter::NodeToString(const XmlElementWrapper &element)
 {
-    return _xmlStringWriter
+    std::shared_ptr<XercesXmlWriter> _xmlStringWriter =
+        std::make_shared<XercesXmlWriter>(this->_domImpl);
+    
+    auto str = _xmlStringWriter
         ->WriteToString(element.GetDomElement());
+
+    return str;
 }
 
 std::string XercesAdapter::NodeToString(const XmlDocumentWrapper &document)
 {
     auto domDocument = document.GetDomDocument();
-    auto rootDomElement = document.GetRootElement()->GetDomElement();
 
+    std::shared_ptr<XercesXmlWriter> _xmlStringWriter =
+        std::make_shared<XercesXmlWriter>(this->_domImpl);
 
-    return _xmlStringWriter
+    std::string str = _xmlStringWriter
         ->WriteToString(
             domDocument,
             document.GetEncoding()
-            );
+        );
+
+    return str;
 }
 
 DOMDocument* XercesAdapter::CreateEmptyDOMDocument()
@@ -652,9 +660,9 @@ bool XercesAdapter::IsValidXmlVersion(const std::string &version)
 }
 
 void XercesAdapter::AddXmlChildElement(
+    std::shared_ptr<XmlElementWrapper> parent,
     std::shared_ptr<XmlElementWrapper> child,
-    std::shared_ptr<XmlElementWrapper> insertBefore,
-    std::shared_ptr<XmlElementWrapper> parent
+    std::shared_ptr<XmlElementWrapper> insertBefore
 )
 {
     try
@@ -674,8 +682,8 @@ void XercesAdapter::AddXmlChildElement(
 
 
 void XercesAdapter::SetXmlElementAttributes(
-    const XmlAttributes &attributes,
-    std::shared_ptr<XmlElementWrapper> element
+    std::shared_ptr<XmlElementWrapper> element,
+    const XmlAttributes &attributes
 )
 {
     try
@@ -764,6 +772,23 @@ std::list<std::shared_ptr<XmlElementWrapper>> XercesAdapter::GetXmlElementChildE
     return std::list<std::shared_ptr<XmlElementWrapper>>();
 }
 
+std::string XercesAdapter::GetXmlElementText(
+    const std::shared_ptr<XmlElementWrapper> element
+) const
+{
+    // TODO: Implement
+    return "";
+}
+
+XmlAttributes XercesAdapter::GetXmlElementAttributes(
+    const std::shared_ptr<XmlElementWrapper> element
+) const
+{
+    return XmlAttributes();
+}
+
+//
+
 ////---------------------------------------------------------
 
 //// Converter-----------------------------------------------
@@ -821,8 +846,7 @@ void TestCase1()
     // Basic XML Node Create
 
     std::cout << "Test Case 1" << std::endl;
-    //int b = 0;
-    //auto a = new (b) float(1.0);
+
     std::shared_ptr<XmlElementWrapper> element1 =
         XercesAdapter::GetInstance()
         .CreateXmlElement(
@@ -842,7 +866,7 @@ void TestCase2()
     std::shared_ptr<XmlElementWrapper> element1 =
         XercesAdapter::GetInstance()
         .CreateXmlElement(
-            std::map<std::string, std::string>(),
+            XmlAttributes(),
             "Element1",
             "Hello"
         );
@@ -850,7 +874,7 @@ void TestCase2()
     std::shared_ptr<XmlElementWrapper> element2 =
         XercesAdapter::GetInstance()
         .CreateXmlElement(
-            std::map<std::string, std::string>(),
+            XmlAttributes(),
             "Element2",
             "Hello"
         );
@@ -858,23 +882,26 @@ void TestCase2()
     std::shared_ptr<XmlElementWrapper> element3 =
         XercesAdapter::GetInstance()
         .CreateXmlElement(
-            std::map<std::string, std::string>(),
+            XmlAttributes(),
             "Element3",
             "Hello"
         );
 
-    XercesAdapter::GetInstance().AddXmlChildElement(element2, nullptr, element1);
+    XercesAdapter::GetInstance()
+        .AddXmlChildElement(element2, element1);
 
     try
     {
-        XercesAdapter::GetInstance().AddXmlChildElement(element2, nullptr, element1);
+        XercesAdapter::GetInstance()
+            .AddXmlChildElement(element2, element1);
     }
     catch (const std::exception&)
     {
         //
     }
 
-    XercesAdapter::GetInstance().AddXmlChildElement(element3, element2, element1);
+    XercesAdapter::GetInstance()
+        .AddXmlChildElement(element1, element3, element2);
 
     //element1.reset();
 

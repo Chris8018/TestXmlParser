@@ -45,6 +45,7 @@ typedef std::map<std::string, std::string> XmlAttributes;
 
 typedef char16_t XMLCh;
 
+
 class OtxDataType
 {
 public:
@@ -74,7 +75,7 @@ public:
     XmlDocumentWrapper(
         xercesc::DOMDocument *documentNode,
         std::shared_ptr<XmlElementWrapper> rootElement,
-        const std::string &encoding
+        const std::string &encoding = "UTF-8"
     );
     virtual ~XmlDocumentWrapper();
 
@@ -95,7 +96,6 @@ public:
 
 class XmlElementWrapper : public XmlNodeWrapper
 {
-    //friend XmlElementWrapper;
 private:
     xercesc::DOMElement *_internalElement;
 
@@ -214,10 +214,6 @@ private:
     // This Writer need to be deleted before TERMINATE
     xercesc::DOMDocument *_dummyDoc;
 
-    // Don't use Smart Pointer
-    // This Writer need to be deleted before TERMINATE
-    XercesXmlWriter *_xmlStringWriter;
-
     static bool IsEmptyOrWhiteSpaceString(const std::string &str);
     static bool IsWhiteSpaceString(const std::string &str);
 
@@ -243,29 +239,59 @@ public:
 
     // @return Empty DOMDocument
     xercesc::DOMDocument* CreateEmptyDOMDocument();
+
+    std::shared_ptr<XmlDocumentWrapper> CreateXmlDocument(
+        std::shared_ptr<XmlElementWrapper> root,
+        const std::string &encoding = "UTF-8", // TODO: Change this to enum later
+        const std::string &version = "1.0",
+        const bool &standalone = false
+    );
+
+    std::shared_ptr<XmlElementWrapper> GetXmlRootElement(
+        const std::shared_ptr<XmlDocumentWrapper> xmlDocument
+    ) const;
+
+    void SetXmlComment(
+        std::shared_ptr<XmlDocumentWrapper> document,
+        const std::string &comment,
+        const bool &append = false
+    );
+
+    void SetXmlProcessingInstructions(
+        std::shared_ptr<XmlDocumentWrapper> document,
+        const std::list<std::string> &processingInstructions
+    );
     
     std::shared_ptr<XmlElementWrapper> CreateXmlElement(
         const XmlAttributes &attributes,
         const std::string &name,
-        const std::string &text
-    );
-
-    std::shared_ptr<XmlDocumentWrapper> CreateXmlDocument(
-        std::shared_ptr<XmlElementWrapper> root,
-        const std::string &encoding, // TODO: Change this to enum later
-        const std::string &version,
-        const bool &standalone
+        const std::string &text = ""
     );
 
     void AddXmlChildElement(
+        std::shared_ptr<XmlElementWrapper> parent,
         std::shared_ptr<XmlElementWrapper> child,
-        std::shared_ptr<XmlElementWrapper> insertBefore,
-        std::shared_ptr<XmlElementWrapper> parent
+        std::shared_ptr<XmlElementWrapper> insertBefore = nullptr
     );
 
+    void DeleteXmlChildElement(
+        std::shared_ptr<XmlElementWrapper> parent,
+        std::shared_ptr<XmlElementWrapper> child
+    );
+
+    std::list<std::shared_ptr<XmlElementWrapper>> GetXmlElementChildElements(
+        const std::shared_ptr<XmlElementWrapper> element,
+        const std::string &elementName = ""
+    ) const;
+
+    std::list<std::shared_ptr<XmlElementWrapper>> GetXmlElementsByXPath(
+        const std::shared_ptr<XmlDocumentWrapper> document,
+        const std::string &xPath
+    ) const;
+
     void SetXmlElementAttributes(
-        const XmlAttributes &attributes,
-        std::shared_ptr<XmlElementWrapper> element
+        std::shared_ptr<XmlElementWrapper> element,
+        const XmlAttributes &attributes
     );
 
     void SetXmlElementAttribute(
@@ -274,13 +300,22 @@ public:
         const std::string &value
     );
 
+    void DeleteXmlAttribute(
+        std::shared_ptr<XmlElementWrapper> element,
+        const std::string &name
+    );
+
+    XmlAttributes XercesAdapter::GetXmlElementAttributes(
+        const std::shared_ptr<XmlElementWrapper> element
+    ) const;
+
     void SetXmlElementText(
         std::shared_ptr<XmlElementWrapper> element,
         const std::string &text
     );
 
-    std::shared_ptr<XmlElementWrapper> GetXmlRootElement(
-        const std::shared_ptr<XmlDocumentWrapper> xmlDocument
+    std::string GetXmlElementText(
+        const std::shared_ptr<XmlElementWrapper> element
     ) const;
 
     std::string GetXmlElementName(
@@ -291,10 +326,30 @@ public:
         const std::shared_ptr<XmlElementWrapper> original
     );
 
-    std::list<std::shared_ptr<XmlElementWrapper>> GetXmlElementChildElements(
-        const std::shared_ptr<XmlElementWrapper> element,
-        const std::string &elementName
+    void XmlSaveToFile(
+        const std::shared_ptr<XmlDocumentWrapper> document
     ) const;
+
+    std::shared_ptr<XmlDocumentWrapper> XmlLoadFromFile(
+        const std::string &path,
+        const std::string &fallbackEncoding = "UTF-8"
+    );
+
+    std::string XmlToByteField(
+        const std::shared_ptr<XmlDocumentWrapper> document
+    ) const;
+
+    std::shared_ptr<XmlDocumentWrapper> XmlFromByteField(
+        const std::string &byteField,
+        const std::string &falbackEncoding = "UTF-8"
+    );
+
+    void ValidateXml(
+        const std::string &path,
+        bool &isValid, // Variable<Boolean> // Not Optional
+        const std::string &fallbackEncoding = "UTF-8",
+        std::shared_ptr<std::string> errorMessages = nullptr //Variable<String>
+    );
 };
 
 class XmlLib
