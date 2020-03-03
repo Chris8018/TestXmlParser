@@ -141,11 +141,11 @@ public:
     //bool IsEqual(...) const;
 };
 
-class DOMPrintErrorHandler : public xercesc::DOMErrorHandler
+class DomWriterErrorHandler : public xercesc::DOMErrorHandler
 {
 public:
-    DOMPrintErrorHandler();
-    virtual ~DOMPrintErrorHandler();
+    DomWriterErrorHandler();
+    virtual ~DomWriterErrorHandler();
 
     /** @name The error handler interface */
     bool handleError(const xercesc::DOMError &domError) override;

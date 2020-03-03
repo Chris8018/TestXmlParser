@@ -196,7 +196,6 @@ int main(int argC, char* argV[])
     {
         XMLPlatformUtils::Initialize();
     }
-
     catch(const XMLException &toCatch)
     {
         XERCES_STD_QUALIFIER cerr << "Error during Xerces-c Initialization.\n"

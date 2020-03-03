@@ -11,11 +11,8 @@
 
 #include <xercesc/dom/DOM.hpp>
 
-//#include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/framework/MemBufFormatTarget.hpp>
-
-#include <xercesc/dom/StDOMNode.hpp>
 
 #include <xercesc/util/TransService.hpp>
 
@@ -55,8 +52,6 @@ using xercesc::XMLFormatTarget;
 //using xercesc::StdOutFormatTarget;
 using xercesc::MemBufFormatTarget;
 using xercesc::LocalFileFormatTarget;
-
-using xercesc::StDOMNode;
 
 using xercesc::TranscodeFromStr;
 
@@ -385,13 +380,13 @@ void XmlLib::SetXmlElementAttribute(
 
 // XercesAdapter----------------------------------------------------
 
-DOMPrintErrorHandler::DOMPrintErrorHandler() {}
+DomWriterErrorHandler::DomWriterErrorHandler() {}
 
-DOMPrintErrorHandler::~DOMPrintErrorHandler() {}
+DomWriterErrorHandler::~DomWriterErrorHandler() {}
 
-void DOMPrintErrorHandler::resetErrors() {}
+void DomWriterErrorHandler::resetErrors() {}
 
-bool DOMPrintErrorHandler::handleError(const DOMError &domError)
+bool DomWriterErrorHandler::handleError(const DOMError &domError)
 {
     // TODO: Modify this to fit with RT7
     // Display whatever error message passed from the serializer
@@ -413,7 +408,7 @@ bool DOMPrintErrorHandler::handleError(const DOMError &domError)
 XercesXmlWriter::XercesXmlWriter(DOMImplementation *domImpl)
 {
     _writer = domImpl->createLSSerializer();
-    _errorHandler = std::make_shared<DOMPrintErrorHandler>();
+    _errorHandler = std::make_shared<DomWriterErrorHandler>();
     _outStream = domImpl->createLSOutput();
 
     SetPrettyPrintFormat();
@@ -461,7 +456,7 @@ std::string XercesXmlWriter::WriteToString(DOMNode *domNode)
 }
 
 std::string XercesXmlWriter::WriteToString(
-    xercesc::DOMNode *domNode,
+    DOMNode *domNode,
     std::string encoding
 )
 {

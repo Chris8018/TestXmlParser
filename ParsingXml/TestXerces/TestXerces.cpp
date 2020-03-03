@@ -50,6 +50,8 @@ void TestSomeCase();
 
 void TestParser();
 
+void TestXPath();
+
 bool toFile = false;
 
 class SampleFactory
@@ -109,11 +111,165 @@ int main(void)
 
     //TryDomDocFragment();
 
-    TestSimpleMemoryLeak();
+    //TestSimpleMemoryLeak();
 
     //TestSomeCase();
 
+    TestXPath();
+
     return 0;
+}
+
+void TestXPath()
+{
+    std::cout << "XPath testing" << std::endl;
+
+    // Initialze
+    try
+    {
+        XMLPlatformUtils::Initialize();
+    }
+    catch (const XMLException & e)
+    {
+        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
+        return;
+    }
+
+    // DOMImpl
+    DOMImplementation *domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"Core");
+
+    //// DOMLSOutput-----------------------------------------
+    DOMLSOutput *theOutPut = domImpl->createLSOutput();
+    theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+    ////-----------------------------------------------------
+
+    //// DOMLSSerializer-------------------------------------
+    DOMLSSerializer *theSerializer = domImpl->createLSSerializer();
+    ////-----------------------------------------------------
+
+    //// Error Handler---------------------------------------
+    DOMErrorHandler *myErrorHandler = new DOMPrintErrorHandler();
+    ////-----------------------------------------------------
+
+    //// Configure-------------------------------------------
+    DOMConfiguration *serializerConfig = theSerializer->getDomConfig();
+    // Set Error Handler
+    serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, myErrorHandler);
+    // Set Pretty Print
+    if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+        serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+    ////-----------------------------------------------------
+
+    //// Format Target---------------------------------------
+    XMLFormatTarget *myFormTarget = new StdOutFormatTarget();
+    ////-----------------------------------------------------
+
+    ////-----------------------------------------------------
+    theOutPut->setByteStream(myFormTarget);
+    
+    ////
+    auto doc1 = domImpl->createDocument();
+
+    auto root = doc1->createElement(u"Root");
+    doc1->appendChild(root);
+
+    auto ele1 = doc1->createElement(u"A");
+
+    ele1->appendChild(doc1->createElement(u"A1"));
+    ele1->appendChild(doc1->createElement(u"A1"));
+
+    ele1->appendChild(doc1->createElement(u"A2"));
+    ele1->appendChild(doc1->createElement(u"A2"));
+    ele1->appendChild(doc1->createElement(u"A2"));
+
+    ele1->appendChild(doc1->createElement(u"A3"));
+    ele1->appendChild(doc1->createElement(u"A3"));
+    ele1->appendChild(doc1->createElement(u"A3"));
+
+    ele1->appendChild(doc1->createElement(u"A4"));
+
+    root->appendChild(ele1);
+
+    auto ele2 = doc1->createElement(u"B");
+
+    ele2->appendChild(doc1->createElement(u"B1"));
+    ele2->appendChild(doc1->createElement(u"B1"));
+    ele2->appendChild(doc1->createElement(u"B1"));
+
+    ele2->appendChild(doc1->createElement(u"B2"));
+
+    ele2->appendChild(doc1->createElement(u"B3"));
+
+    ele2->appendChild(doc1->createElement(u"B4"));
+    ele2->appendChild(doc1->createElement(u"B4"));
+    ele2->appendChild(doc1->createElement(u"B4"));
+
+    root->appendChild(ele2);
+
+    auto ele3 = doc1->createElement(u"C");
+
+    ele3->appendChild(doc1->createElement(u"A1"));
+    ele3->appendChild(doc1->createElement(u"A1"));
+    ele3->appendChild(doc1->createElement(u"A1"));
+
+    ele3->appendChild(doc1->createElement(u"A2"));
+    ele3->appendChild(doc1->createElement(u"A2"));
+    ele3->appendChild(doc1->createElement(u"A2"));
+
+    ele3->appendChild(doc1->createElement(u"A3"));
+    ele3->appendChild(doc1->createElement(u"A3"));
+    ele3->appendChild(doc1->createElement(u"A3"));
+
+    ele3->appendChild(doc1->createElement(u"A4"));
+
+    root->appendChild(ele3);
+
+    auto ele4 = doc1->createElement(u"C");
+
+    ele4->appendChild(doc1->createElement(u"G1"));
+    ele4->appendChild(doc1->createElement(u"E1"));
+
+    root->appendChild(ele4);
+
+    auto xPathStr = u"//A2/..";
+
+    try
+    {
+        DOMXPathNSResolver* resolver = doc1->createNSResolver(root);
+        DOMXPathResult* result = doc1->evaluate(
+            xPathStr,
+            root,
+            resolver,
+            DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
+            NULL);
+
+        XMLSize_t nLength = result->getSnapshotLength();
+        for (XMLSize_t i = 0; i < nLength; i++)
+        {
+            result->snapshotItem(i);
+
+            auto tempNode = result->getNodeValue();
+
+            theSerializer->write(tempNode, theOutPut);
+
+            //
+        }
+    }
+    catch (const DOMXPathException & ex)
+    {
+        std::cout << "DOMXPathException" << std::endl;
+        std::cout << XMLString::transcode(ex.getMessage()) << std::endl;
+        return;
+    }
+    catch (const DOMException &ex)
+    {
+        std::cout << "DOMException" << std::endl;
+        std::cout << XMLString::transcode(ex.getMessage()) << std::endl;
+        return;
+    }
+
+    XMLPlatformUtils::Terminate();
 }
 
 void CreateAndPrint()
@@ -167,6 +323,23 @@ void CreateAndPrint()
     domDoc2->appendChild(domEle2);
     domEle2->setTextContent(u"Ele2 Text");
 
+    // CData
+    auto cdata1 = domDoc2->createCDATASection(u"<Test CData>");
+
+    domEle2->appendChild(cdata1);
+
+    // Element in Element 2 with Text
+
+    auto tempEleText1 = domDoc2->createElement(u"TextHere");
+    tempEleText1->setTextContent(u"Don not show this");
+
+    domEle2->appendChild(tempEleText1);
+
+    // Comment into element
+    auto comment1 = domDoc2->createComment(u"A Test Comment for Element2");
+
+    domEle2->appendChild(comment1);
+
     // DOMDoc1
     DOMDocument *domDoc1 =
         domImpl->createDocument(0, XMLString::transcode("Hello_World"), 0);
@@ -207,7 +380,8 @@ void CreateAndPrint()
 
 
     XMLCh *textWithSymbols = XMLString::transcode("~!@#$%^&*()_+{}|:\"<>?`1234567890-=[]\\;',./");
-    domEle2->setTextContent(textWithSymbols);
+    //domEle2->setTextContent(textWithSymbols);
+
     //((DOMAttr*) domEle1->getAttributes()->item(1))->getna
     //domEle1->setAttribute(u" ", u" ");
 
@@ -245,6 +419,23 @@ void CreateAndPrint()
         std::cout << XMLString::transcode(e.getMessage()) << std::endl;
     }
     //domEle5->appendChild(domEle8);
+
+    // Test appending Element from different Element
+    auto ele1 = domDoc1->createElement(u"Nintendo");
+
+    auto ele2 = domDoc1->createElement(u"DS");
+    auto ele5 = domDoc1->createElement(u"N3DS");
+
+    ele1->appendChild(ele2);
+    ele1->appendChild(ele5);
+
+    auto ele3 = domDoc1->createElement(u"Sony");
+
+    auto ele4 = domDoc1->createElement(u"PS2");
+    auto ele6 = domDoc1->createElement(u"PS3");
+
+    ele3->appendChild(ele4);
+    ele3->appendChild(ele6);
 
     //// DOMLSOutput-----------------------------------------
     DOMLSOutput *theOutPut = domImpl->createLSOutput();
@@ -322,12 +513,55 @@ void CreateAndPrint()
 
     //DOMDocument *doc = 0;
 
+    // Check CData
+    std::cout << XMLString::transcode(domEle2->getTextContent()) << std::endl;
+
+    std::cout << XMLString::transcode(cdata1->getData()) << std::endl;
+
     //// SHOULD BE GONE when delete domDoc1
     DOMElement *dummyElement1 = domDoc1->createElement(u"Dummy1");
 
     auto dummyDoc = domImpl->createDocument();
 
     auto ele7 = dummyDoc->createElement(u"Element7");
+
+    // Continue Testing on appendElement from different parent
+    // out of scope
+
+    // Print on Console
+    std::cout << "Check Append" << std::endl;
+    theSerializer->write(ele1, theOutPut);
+
+    std::cout << "\n";
+    std::cout << "\n";
+    std::cout << "\n";
+
+    // Print on Console
+    std::cout << "Check Append" << std::endl;
+    theSerializer->write(ele3, theOutPut);
+
+    std::cout << "\n";
+    std::cout << "\n";
+    std::cout << "\n";
+
+    // Should be an Error
+    ele5->appendChild(ele6);
+
+    // Print on Console
+    std::cout << "Check Append" << std::endl;
+    theSerializer->write(ele1, theOutPut);
+
+    std::cout << "\n";
+    std::cout << "\n";
+    std::cout << "\n";
+
+    // Print on Console
+    std::cout << "Check Append" << std::endl;
+    theSerializer->write(ele3, theOutPut);
+
+    std::cout << "\n";
+    std::cout << "\n";
+    std::cout << "\n";
 
     // Cleanup.
     //theOutPut->release();
@@ -667,6 +901,7 @@ void TestSimpleMemoryLeak()
     auto element1 = doc1->createElement(u"element1");
 
     auto element2 = doc1->createElement(u"element1");
+    //doc2->createCDATASection(u"<sdf>")->
 
     if (element1->isEqualNode(element2))
     {
