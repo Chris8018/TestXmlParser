@@ -305,7 +305,7 @@ public:
         const std::string &name
     );
 
-    XmlAttributes XercesAdapter::GetXmlElementAttributes(
+    XmlAttributes GetXmlElementAttributes(
         const std::shared_ptr<XmlElement> element
     ) const;
 
