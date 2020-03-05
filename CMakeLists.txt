@@ -3,11 +3,15 @@
 #
 cmake_minimum_required(VERSION 3.8)
  # Force to always compile with W4 (warning level 4)
-if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-    string(REGEX REPLACE "/W[0-4]" "/W4 /wd4996" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /wd4996")
-endif()
+
+if (WIN32)
+    if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+        string(REGEX REPLACE "/W[0-4]" "/W4 /wd4996" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /wd4996")
+    endif()
+
+endif (WIN32)
 
 #Using /std:c++14
 set(CMAKE_CXX_STANDARD 14)

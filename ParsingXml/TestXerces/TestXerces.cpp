@@ -137,7 +137,7 @@ void TestXPath()
 
     // DOMImpl
     DOMImplementation *domImpl =
-        DOMImplementationRegistry::getDOMImplementation(u"Core");
+        DOMImplementationRegistry::getDOMImplementation(u"");
 
     //// DOMLSOutput-----------------------------------------
     DOMLSOutput *theOutPut = domImpl->createLSOutput();
@@ -232,7 +232,7 @@ void TestXPath()
 
     root->appendChild(ele4);
 
-    auto xPathStr = u"//A2/..";
+    auto xPathStr = u"//A2";
 
     try
     {
@@ -251,10 +251,15 @@ void TestXPath()
 
             auto tempNode = result->getNodeValue();
 
+            tempNode->appendChild(doc1->createElement(u"Z"));
+
             theSerializer->write(tempNode, theOutPut);
 
             //
         }
+
+        resolver->release();
+        result->release();
     }
     catch (const DOMXPathException & ex)
     {
@@ -268,6 +273,8 @@ void TestXPath()
         std::cout << XMLString::transcode(ex.getMessage()) << std::endl;
         return;
     }
+
+    theSerializer->write(root, theOutPut);
 
     XMLPlatformUtils::Terminate();
 }
