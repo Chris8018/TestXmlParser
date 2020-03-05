@@ -100,7 +100,7 @@ XmlDocument::XmlDocument(
     if (rootElement->HasParent())
     {
         // TODO: Throw if Element HasParent
-        throw std::exception("Has parent");
+        throw std::exception();
     }
 
     _internalDocument = documentNode;
@@ -258,7 +258,7 @@ void XmlElement::InsertChildBefore(
 {
     if (child->HasParent())
     {
-        throw std::exception("Has parent or is root");
+        throw std::exception();
     }
 
     auto _child = child->GetDomElement();
@@ -583,12 +583,12 @@ std::shared_ptr<XmlElement> XercesAdapter::CreateXmlElement(
 
         std::cout << errorMessage << std::endl;
 
-        throw std::exception(errorMessage.c_str());
+        throw std::exception();
     }
     catch (...)
     {
         // TODO: unexpected error
-        throw std::exception("Unexpected Error");
+        throw std::exception();
     }
 
 
@@ -618,7 +618,7 @@ std::shared_ptr<XmlDocument> XercesAdapter::CreateXmlDocument(
 {
     if (!IsValidEncoding(encoding))
     {
-        throw std::exception("Invalid encoding");
+        throw std::exception();
     }
 
     std::string _version =
@@ -714,7 +714,7 @@ void XercesAdapter::SetXmlElementAttribute(
 
         std::cout << errorMessage << std::endl;
 
-        throw std::exception(errorMessage.c_str());
+        throw std::exception();
     }
     catch (...)
     {

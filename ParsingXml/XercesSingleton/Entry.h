@@ -251,16 +251,16 @@ public:
         const std::shared_ptr<XmlDocument> xmlDocument
     ) const;
 
-    void SetXmlComment(
-        std::shared_ptr<XmlDocument> document,
-        const std::string &comment,
-        const bool &append = false
-    );
+    //void SetXmlComment(
+    //    std::shared_ptr<XmlDocument> document,
+    //    const std::string &comment,
+    //    const bool &append = false
+    //);
 
-    void SetXmlProcessingInstructions(
-        std::shared_ptr<XmlDocument> document,
-        const std::list<std::string> &processingInstructions
-    );
+    //void SetXmlProcessingInstructions(
+    //    std::shared_ptr<XmlDocument> document,
+    //    const std::list<std::string> &processingInstructions
+    //);
     
     std::shared_ptr<XmlElement> CreateXmlElement(
         const std::string &name,
@@ -274,20 +274,20 @@ public:
         std::shared_ptr<XmlElement> insertBefore = nullptr
     );
 
-    void DeleteXmlChildElement(
-        std::shared_ptr<XmlElement> parent,
-        std::shared_ptr<XmlElement> child
-    );
+    //void DeleteXmlChildElement(
+    //    std::shared_ptr<XmlElement> parent,
+    //    std::shared_ptr<XmlElement> child
+    //);
 
     std::list<std::shared_ptr<XmlElement>> GetXmlElementChildElements(
         const std::shared_ptr<XmlElement> element,
         const std::string &elementName = ""
     ) const;
 
-    std::list<std::shared_ptr<XmlElement>> GetXmlElementsByXPath(
-        const std::shared_ptr<XmlDocument> document,
-        const std::string &xPath
-    ) const;
+    //std::list<std::shared_ptr<XmlElement>> GetXmlElementsByXPath(
+    //    const std::shared_ptr<XmlDocument> document,
+    //    const std::string &xPath
+    //) const;
 
     void SetXmlElementAttributes(
         std::shared_ptr<XmlElement> element,
@@ -300,10 +300,10 @@ public:
         const std::string &value
     );
 
-    void DeleteXmlAttribute(
-        std::shared_ptr<XmlElement> element,
-        const std::string &name
-    );
+    //void DeleteXmlAttribute(
+    //    std::shared_ptr<XmlElement> element,
+    //    const std::string &name
+    //);
 
     XmlAttributes GetXmlElementAttributes(
         const std::shared_ptr<XmlElement> element
@@ -326,30 +326,30 @@ public:
         const std::shared_ptr<XmlElement> original
     );
 
-    void XmlSaveToFile(
-        const std::shared_ptr<XmlDocument> document
-    ) const;
+    //void XmlSaveToFile(
+    //    const std::shared_ptr<XmlDocument> document
+    //) const;
 
-    std::shared_ptr<XmlDocument> XmlLoadFromFile(
-        const std::string &path,
-        const std::string &fallbackEncoding = "UTF-8"
-    );
+    //std::shared_ptr<XmlDocument> XmlLoadFromFile(
+    //    const std::string &path,
+    //    const std::string &fallbackEncoding = "UTF-8"
+    //);
 
-    std::string XmlToByteField(
-        const std::shared_ptr<XmlDocument> document
-    ) const;
+    //std::string XmlToByteField(
+    //    const std::shared_ptr<XmlDocument> document
+    //) const;
 
-    std::shared_ptr<XmlDocument> XmlFromByteField(
-        const std::string &byteField,
-        const std::string &falbackEncoding = "UTF-8"
-    );
+    //std::shared_ptr<XmlDocument> XmlFromByteField(
+    //    const std::string &byteField,
+    //    const std::string &falbackEncoding = "UTF-8"
+    //);
 
-    void ValidateXml(
-        const std::string &path,
-        bool &isValid, // Variable<Boolean> // Not Optional
-        const std::string &fallbackEncoding = "UTF-8",
-        std::shared_ptr<std::string> errorMessages = nullptr //Variable<String>
-    );
+    //void ValidateXml(
+    //    const std::string &path,
+    //    bool &isValid, // Variable<Boolean> // Not Optional
+    //    const std::string &fallbackEncoding = "UTF-8",
+    //    std::shared_ptr<std::string> errorMessages = nullptr //Variable<String>
+    //);
 };
 
 class XmlLib
