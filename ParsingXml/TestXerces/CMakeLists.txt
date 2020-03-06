@@ -16,3 +16,11 @@ target_link_libraries(${PROJECT_NAME} xerces-c)
 #if (EXISTS "${CMAKE_BINARY_DIR}/lib/xerces-c-3.2.2/src/xercesc/util/Xerces_autoconf_config.hpp")
 #    message("Config File Exist")
 #endif()
+
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory
+    ${CMAKE_SOURCE_DIR}/others/XmlStorage
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/XmlStorage
+)

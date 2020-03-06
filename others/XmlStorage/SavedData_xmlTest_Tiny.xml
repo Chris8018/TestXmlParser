@@ -1,0 +1,9 @@
+<Root>
+    <IntValue>10</IntValue>
+    <Date day="26" month="April" year="2014" dateFormat="26/04/2014"/>
+    <eg:List abc:itemCount="3" itemType="int">
+        <Item>1</Item>
+        <Item>2</Item>
+        <Item>3</Item>
+    </eg:List>
+</Root>

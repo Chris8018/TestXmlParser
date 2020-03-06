@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--Created with Liquid XML 2016 Designer Edition 14.1.2.6578 (https://www.liquid-technologies.com)-->
+<!--Schema Proposal v01 from Dominik Taeubert (Volkswagen AG)-->
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:complexType name="ResultContainer">
+        <xs:sequence>
+            <xs:element name="parent" type="ParentResultContainer" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="ContainerName" use="required" />
+    </xs:complexType>
+    <xs:complexType name="ParentResultContainer">
+        <xs:attribute name="parentName" type="ContainerName" />
+    </xs:complexType>
+    <xs:complexType name="ResultDataModel">
+        <xs:sequence>
+            <xs:element name="resultContainer" type="ResultContainer" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="ContainerName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="_*[a-zA-Z][a-zA-Z0-9_]*" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="resultDataModel" type="ResultDataModel">
+        <xs:key name="UniqueNames">
+            <xs:selector xpath=".//resultContainer" />
+            <xs:field xpath="@name" />
+        </xs:key>
+    </xs:element>
+</xs:schema>

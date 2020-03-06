@@ -1,0 +1,11 @@
+<script>
+    <![CDATA[
+        <message> Welcome to TutorialsPoint </message>
+    ]]>
+    Text 1
+    Text 2
+    <node1>
+        Text In Node 1
+    </node1>
+    Text3
+</script>

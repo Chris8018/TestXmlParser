@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?><Root>
+    <IntValue>10</IntValue>
+    <Date dateFormat="26/04/2014" day="26" month="April" year="2014"/>
+    <List itemCount="3">
+        <Item>1</Item>
+        <Item>2</Item>
+        <Item>3</Item>
+    </List>
+</Root>

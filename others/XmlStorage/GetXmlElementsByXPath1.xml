@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<otx xmlns="http://iso.org/OTX/1.0.0" xmlns:hmi="http://iso.org/OTX/1.0.0/HMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="id_cd163ed432b74ae88687134170c7636d" name="GetXmlElementsByXPath1" package="NewPackage1" version="1.0.0.0" timestamp="2017-08-28T14:25:42.3111698+07:00">
+  <metaData>
+    <data key="MadeWith">Created by emotive Open Test Framework - www.emotive.de</data>
+    <data key="OtfVersion">5.6.0.22750</data>
+  </metaData>
+  <signatures>
+    <signature id="Signature_0d15e95850264d4d855a4bc631ee3b0a" name="ScreenSignature1">
+      <realisation xsi:type="hmi:ScreenSignature" />
+    </signature>
+  </signatures>
+  <procedures>
+    <procedure id="id_54425ae3f2c84af3aa938d37c6a46889" name="main" visibility="PUBLIC">
+      <realisation>
+        <declarations>
+          <variable name="ScreenHandle1" id="VariableDeclaration_043b2679efe64672aaa8e86d3c700314">
+            <realisation>
+              <dataType xsi:type="hmi:Screen" />
+            </realisation>
+          </variable>
+        </declarations>
+        <flow>
+          <action id="OpenScreen_aed262c9d7764460af1899c5c10d312b" name="ScreenSignature11">
+
+          </action>
+        </flow>
+      </realisation>
+    </procedure>
+  </procedures>
+</otx>

@@ -56,6 +56,10 @@ void TestXPath();
 
 void TestTranscode();
 
+void TestParserFromFile();
+
+void TestParserFromString();
+
 bool toFile = false;
 
 class SampleFactory
@@ -121,10 +125,50 @@ int main(void)
 
     //TestXPath();
 
-    TestTranscode();
+    //TestTranscode();
+
+    TestParserFromFile();
+
+    //TestParserFromString();
 
     return 0;
 }
+
+void TestParserFromFile()
+{
+    std::cout << "Parsing from File" << std::endl;
+
+    // Initialze
+    try
+    {
+        XMLPlatformUtils::Initialize();
+    }
+    catch (const XMLException & e)
+    {
+        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
+        return;
+    }
+
+    XMLPlatformUtils::Terminate();
+}
+
+//void TestParserFromString()
+//{
+//    std::cout << "Parsing from String" << std::endl;
+//
+//    // Initialze
+//    try
+//    {
+//        XMLPlatformUtils::Initialize();
+//    }
+//    catch (const XMLException & e)
+//    {
+//        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
+//        return;
+//    }
+//
+//    XMLPlatformUtils::Terminate();
+//}
 
 void TestTranscode()
 {

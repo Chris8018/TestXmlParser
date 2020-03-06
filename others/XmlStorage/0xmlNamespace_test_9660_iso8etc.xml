@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<TestRootNode xmlns:abc="http://example.org/abc" attributeWithoutNamespace="test1">
+    <ChildNode attribute1="foobar">
+    </ChildNode>
+</TestRootNode>

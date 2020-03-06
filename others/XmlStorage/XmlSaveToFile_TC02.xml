@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<root attribute="abc">text<child attr="val">childtext<grandchild attr1="val1">grandchildtext</grandchild>
+    </child>
+</root>
