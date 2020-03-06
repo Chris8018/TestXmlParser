@@ -19,6 +19,8 @@
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 
+#include <xercesc/util/TransService.hpp>
+
 //#include <xercesc/util/OutOfMemoryException.hpp>
 
 // Define namespace symbols (Otherwise we'd have to prefix Xerces code with 
@@ -51,6 +53,8 @@ void TestSomeCase();
 void TestParser();
 
 void TestXPath();
+
+void TestTranscode();
 
 bool toFile = false;
 
@@ -115,9 +119,32 @@ int main(void)
 
     //TestSomeCase();
 
-    TestXPath();
+    //TestXPath();
+
+    TestTranscode();
 
     return 0;
+}
+
+void TestTranscode()
+{
+    XMLPlatformUtils::Initialize();
+
+    std::string str = "HelloWorld";
+    XMLCh *transcoded = TranscodeFromStr(
+        (XMLByte*)str.c_str(),
+        XMLString::stringLen(str.c_str()),
+        "US-ASCII").adopt();
+
+    XMLByte *untranscoded = TranscodeToStr(
+        transcoded,
+        "US-ASCII").adopt();
+
+    char *result = XMLString::transcode(transcoded);
+
+    //std::cout << result << std::endl;
+
+    XMLPlatformUtils::Terminate();
 }
 
 void TestXPath()
