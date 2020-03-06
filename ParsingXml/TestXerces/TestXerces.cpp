@@ -19,9 +19,19 @@
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 
+//#include <xercesc/framework/StdInInputSource.hpp>
+#include <xercesc/framework/MemBufInputSource.hpp>
+
 #include <xercesc/util/TransService.hpp>
 
-//#include <xercesc/util/OutOfMemoryException.hpp>
+#include <xercesc/parsers/XercesDOMParser.hpp>
+
+#include <xercesc/sax/ErrorHandler.hpp>
+#include <xercesc/sax/SAXParseException.hpp>
+
+#include <xercesc/util/OutOfMemoryException.hpp>
+
+#include <xercesc/util/HexBin.hpp>
 
 // Define namespace symbols (Otherwise we'd have to prefix Xerces code with 
 // "XERCES_CPP_NAMESPACE::")
@@ -61,6 +71,48 @@ void TestParserFromFile();
 void TestParserFromString();
 
 bool toFile = false;
+
+class StrX
+{
+public:
+    // -----------------------------------------------------------------------
+    //  Constructors and Destructor
+    // -----------------------------------------------------------------------
+    StrX(const XMLCh* const toTranscode)
+    {
+        // Call the private transcoding method
+        fLocalForm = XMLString::transcode(toTranscode);
+    }
+
+    ~StrX()
+    {
+        XMLString::release(&fLocalForm);
+    }
+
+
+    // -----------------------------------------------------------------------
+    //  Getter methods
+    // -----------------------------------------------------------------------
+    const char* localForm() const
+    {
+        return fLocalForm;
+    }
+
+private:
+    // -----------------------------------------------------------------------
+    //  Private data members
+    //
+    //  fLocalForm
+    //      This is the local code page form of the string.
+    // -----------------------------------------------------------------------
+    char* fLocalForm;
+};
+
+inline XERCES_STD_QUALIFIER ostream& operator<<(XERCES_STD_QUALIFIER ostream& target, const StrX& toDump)
+{
+    target << toDump.localForm();
+    return target;
+}
 
 class SampleFactory
 {
@@ -109,6 +161,89 @@ private:
 
 };
 
+class DOMTreeErrorReporter : public ErrorHandler
+{
+public:
+    // -----------------------------------------------------------------------
+    //  Constructors and Destructor
+    // -----------------------------------------------------------------------
+    DOMTreeErrorReporter() :
+        fSawErrors(false)
+    {
+    }
+
+    ~DOMTreeErrorReporter()
+    {
+    }
+
+
+    // -----------------------------------------------------------------------
+    //  Implementation of the error handler interface
+    // -----------------------------------------------------------------------
+    void warning(const SAXParseException& toCatch);
+    void error(const SAXParseException& toCatch);
+    void fatalError(const SAXParseException& toCatch);
+    void resetErrors();
+
+    // -----------------------------------------------------------------------
+    //  Getter methods
+    // -----------------------------------------------------------------------
+    bool getSawErrors() const;
+
+    // -----------------------------------------------------------------------
+    //  Private data members
+    //
+    //  fSawErrors
+    //      This is set if we get any errors, and is queryable via a getter
+    //      method. Its used by the main code to suppress output if there are
+    //      errors.
+    // -----------------------------------------------------------------------
+    bool    fSawErrors;
+};
+
+inline bool DOMTreeErrorReporter::getSawErrors() const
+{
+    return fSawErrors;
+}
+
+void DOMTreeErrorReporter::warning(const SAXParseException &toCatch)
+{
+    //XERCES_STD_QUALIFIER cerr << "Warning at file \"" << StrX(toCatch.getSystemId())
+    //    << "\", line " << toCatch.getLineNumber()
+    //    << ", column " << toCatch.getColumnNumber()
+    //    << "\n   Message: " << StrX(toCatch.getMessage()) << XERCES_STD_QUALIFIER endl;
+
+    std::cout << "Warning: " << StrX(toCatch.getMessage()) << std::endl;
+}
+
+void DOMTreeErrorReporter::error(const SAXParseException& toCatch)
+{
+    fSawErrors = true;
+    //XERCES_STD_QUALIFIER cerr << "Error at file \"" << StrX(toCatch.getSystemId())
+    //    << "\", line " << toCatch.getLineNumber()
+    //    << ", column " << toCatch.getColumnNumber()
+    //    << "\n   Message: " << StrX(toCatch.getMessage()) << XERCES_STD_QUALIFIER endl;
+
+    std::cout << "Error: " << StrX(toCatch.getMessage()) << std::endl;
+}
+
+void DOMTreeErrorReporter::fatalError(const SAXParseException& toCatch)
+{
+    fSawErrors = true;
+    //XERCES_STD_QUALIFIER cerr << "Fatal Error at file \"" << StrX(toCatch.getSystemId())
+    //    << "\", line " << toCatch.getLineNumber()
+    //    << ", column " << toCatch.getColumnNumber()
+    //    << "\n   Message: " << StrX(toCatch.getMessage()) << XERCES_STD_QUALIFIER endl;
+
+    std::cout << "Fatal: " << StrX(toCatch.getMessage()) << std::endl;
+}
+
+void DOMTreeErrorReporter::resetErrors()
+{
+    fSawErrors = false;
+}
+
+
 int main(void)
 {
     //toFile = true;
@@ -138,6 +273,30 @@ void TestParserFromFile()
 {
     std::cout << "Parsing from File" << std::endl;
 
+    //// File Path
+    std::vector<std::string> paths;
+    paths.push_back("XmlStorage/simple.xml");
+    paths.push_back("XmlStorage/XmlFileWithNotExistingXsd.xml");
+
+
+    //// Xml String
+    std::vector<std::string> xmls;
+    xmls.push_back(R"(<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Hello_World>
+    <child1/>
+</Hello_World>)");
+    xmls.push_back(R"(<?xml version="1.0" encoding="utf-16le" standalone="no" ?>
+<Hello_World>
+    <child1/>
+</Hello_World>)");
+
+    //// Choose XML file to parse
+    std::string gXmlFile = paths[0];
+
+    //// Choose XML String to parse
+    std::string xmlString = xmls[1];
+    bool fromMemory = true;
+
     // Initialze
     try
     {
@@ -148,6 +307,167 @@ void TestParserFromFile()
         std::cout << XMLString::transcode(e.getMessage()) << std::endl;
         return;
     }
+
+    // DOMImpl
+    DOMImplementation* domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    //// DOMLSOutput-----------------------------------------
+    DOMLSOutput* theOutPut = domImpl->createLSOutput();
+    //theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+    ////-----------------------------------------------------
+
+    //// DOMLSSerializer-------------------------------------
+    DOMLSSerializer* theSerializer = domImpl->createLSSerializer();
+    ////-----------------------------------------------------
+
+    //// Error Handler---------------------------------------
+    DOMErrorHandler* myErrorHandler = new DOMPrintErrorHandler();
+    ////-----------------------------------------------------
+
+    //// Configure-------------------------------------------
+    DOMConfiguration* serializerConfig = theSerializer->getDomConfig();
+    // Set Error Handler
+    serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, myErrorHandler);
+    // Set Pretty Print
+    if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+        serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+    ////-----------------------------------------------------
+
+    //// Format Target---------------------------------------
+    XMLFormatTarget* myFormTarget = new StdOutFormatTarget();
+    ////-----------------------------------------------------
+
+    ////-----------------------------------------------------
+    theOutPut->setByteStream(myFormTarget);
+
+    //domImpl->createLSParser() // Might not work
+
+    //// Set up Parser
+    XercesDOMParser* domParser = new XercesDOMParser;
+
+    auto gValScheme = XercesDOMParser::Val_Auto;
+    bool gDoSchema = true;
+    bool gSchemaFullChecking = false;
+    bool gValidationConstraintFatal = false;
+
+    bool gDoNamespaces = true;
+    bool gHandleMultipleImport = true;
+    bool gDoCreate = false;
+
+    domParser->setValidationScheme(gValScheme);
+    domParser->setDoSchema(gDoSchema);
+    domParser->setValidationSchemaFullChecking(gSchemaFullChecking);
+    domParser->setValidationConstraintFatal(gValidationConstraintFatal);
+
+    //domParser->setExternalNoNamespaceSchemaLocation
+    //domParser->setLoadSchema
+    //domParser->getExternalSchemaLocation
+
+    domParser->setDoNamespaces(gDoNamespaces);
+
+    domParser->setHandleMultipleImports(gHandleMultipleImport);
+
+    domParser->setCreateEntityReferenceNodes(gDoCreate);
+
+    DOMTreeErrorReporter* errReporter = new DOMTreeErrorReporter();
+    domParser->setErrorHandler(errReporter);
+
+    /// Parsing
+    bool errorsOccured = false;
+    try
+    {
+        //// Read Xml String
+        MemBufInputSource inputSrc(
+            (XMLByte*)xmlString.c_str(),
+            xmlString.size(),
+            "from string",
+            false);
+
+        inputSrc.setEncoding(u"UTF-8");
+
+        if (fromMemory)
+            domParser->parse(inputSrc);
+        else
+            domParser->parse(gXmlFile.c_str());
+
+        auto a = domParser->getExternalSchemaLocation();
+        auto b = domParser->getExternalNoNamespaceSchemaLocation();
+
+        auto d = inputSrc.getEncoding();
+
+        int c = 0;
+    }
+    catch (const OutOfMemoryException&)
+    {
+        XERCES_STD_QUALIFIER cerr << "OutOfMemoryException" << XERCES_STD_QUALIFIER endl;
+        errorsOccured = true;
+    }
+    catch (const XMLException & e)
+    {
+        XERCES_STD_QUALIFIER cerr << "XML error occurred during parsing\n   Message: "
+            << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
+        errorsOccured = true;
+    }
+    catch (const DOMException & e)
+    {
+        const unsigned int maxChars = 2047;
+        XMLCh errText[maxChars + 1];
+
+        XERCES_STD_QUALIFIER cerr << "\nDOM Error during parsing: '" << gXmlFile << "'\n"
+            << "DOMException code is:  " << e.code << XERCES_STD_QUALIFIER endl;
+
+        if (DOMImplementation::loadDOMExceptionMsg(e.code, errText, maxChars))
+            XERCES_STD_QUALIFIER cerr << "Message is: " << StrX(errText) << XERCES_STD_QUALIFIER endl;
+
+        errorsOccured = true;
+    }
+    catch (...)
+    {
+        XERCES_STD_QUALIFIER cerr << "Unknown error occurred during parsing\n " << XERCES_STD_QUALIFIER endl;
+        errorsOccured = true;
+    }
+
+    // Failed
+    if (errorsOccured)
+        return;
+
+    //// Check for error report
+    if (errReporter->getSawErrors())
+    {
+        //
+        std::cout << "Got Error when parsing" << std::endl;
+    }
+
+    try
+    {
+        DOMDocument* doc1 = domParser->adoptDocument();
+
+        auto a = doc1->getInputEncoding();
+        auto b = doc1->getXmlEncoding();
+
+        //doc1->getDocumentElement()->pos
+
+        theSerializer->write(doc1, theOutPut);
+    }
+    catch (const OutOfMemoryException&)
+    {
+        XERCES_STD_QUALIFIER cerr << "OutOfMemoryException" << XERCES_STD_QUALIFIER endl;
+    }
+    catch (const DOMLSException & e)
+    {
+        XERCES_STD_QUALIFIER cerr << "An error occurred during serialization of the DOM tree. Msg is:"
+            << XERCES_STD_QUALIFIER endl
+            << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
+    }
+    catch (const XMLException & e)
+    {
+        XERCES_STD_QUALIFIER cerr << "An error occurred during creation of output transcoder. Msg is:"
+            << XERCES_STD_QUALIFIER endl
+            << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
+    }
+
+    //delete inputSrc;
 
     XMLPlatformUtils::Terminate();
 }
@@ -166,6 +486,39 @@ void TestParserFromFile()
 //        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
 //        return;
 //    }
+//
+//    // DOMImpl
+//    DOMImplementation* domImpl =
+//        DOMImplementationRegistry::getDOMImplementation(u"");
+//
+//    //// DOMLSOutput-----------------------------------------
+//    DOMLSOutput* theOutPut = domImpl->createLSOutput();
+//    theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+//    ////-----------------------------------------------------
+//
+//    //// DOMLSSerializer-------------------------------------
+//    DOMLSSerializer* theSerializer = domImpl->createLSSerializer();
+//    ////-----------------------------------------------------
+//
+//    //// Error Handler---------------------------------------
+//    DOMErrorHandler* myErrorHandler = new DOMPrintErrorHandler();
+//    ////-----------------------------------------------------
+//
+//    //// Configure-------------------------------------------
+//    DOMConfiguration* serializerConfig = theSerializer->getDomConfig();
+//    // Set Error Handler
+//    serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, myErrorHandler);
+//    // Set Pretty Print
+//    if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+//        serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+//    ////-----------------------------------------------------
+//
+//    //// Format Target---------------------------------------
+//    XMLFormatTarget* myFormTarget = new StdOutFormatTarget();
+//    ////-----------------------------------------------------
+//
+//    ////-----------------------------------------------------
+//    theOutPut->setByteStream(myFormTarget);
 //
 //    XMLPlatformUtils::Terminate();
 //}

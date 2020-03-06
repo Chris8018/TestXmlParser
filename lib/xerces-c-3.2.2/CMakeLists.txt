@@ -69,7 +69,7 @@ message(STATUS "Configuring Apache Xerces-C++ version ${xerces_c_version}")
 project(xerces-c
         VERSION "${xerces_c_version}"
         LANGUAGES C CXX)
-#enable_testing()
+enable_testing()
 
 # For autotools header compatibility
 set(PACKAGE "${PROJECT_NAME}")
@@ -177,8 +177,8 @@ install(
 # Process subdirectories
 #add_subdirectory(doc)
 add_subdirectory(src)
-#add_subdirectory(tests)
-#add_subdirectory(samples)
+add_subdirectory(tests)
+add_subdirectory(samples)
 
 # Display configuration summary
 message(STATUS "")

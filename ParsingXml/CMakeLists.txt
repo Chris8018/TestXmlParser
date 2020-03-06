@@ -2,4 +2,4 @@
 add_subdirectory(TestXerces)
 #add_subdirectory(TestPocoXml)
 
-add_subdirectory(XercesSingleton)
+#add_subdirectory(XercesSingleton)
