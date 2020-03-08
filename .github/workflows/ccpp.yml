@@ -1,0 +1,23 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Make build dir
+      run: mkdir build
+    - name: Go to build dir
+      run: cd build
+    - name: Gen make file
+      run: cmake -G "Unix Makefiles" DCMAKE_BUILD_TYPE=Debug ../
+    - name: make
+      run: make -j8
