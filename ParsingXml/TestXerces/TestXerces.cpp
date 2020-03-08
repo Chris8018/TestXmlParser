@@ -264,8 +264,6 @@ int main(void)
 
     TestParserFromFile();
 
-    //TestParserFromString();
-
     return 0;
 }
 
@@ -467,77 +465,50 @@ void TestParserFromFile()
             << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
     }
 
-    //delete inputSrc;
-
     XMLPlatformUtils::Terminate();
 }
-
-//void TestParserFromString()
-//{
-//    std::cout << "Parsing from String" << std::endl;
-//
-//    // Initialze
-//    try
-//    {
-//        XMLPlatformUtils::Initialize();
-//    }
-//    catch (const XMLException & e)
-//    {
-//        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
-//        return;
-//    }
-//
-//    // DOMImpl
-//    DOMImplementation* domImpl =
-//        DOMImplementationRegistry::getDOMImplementation(u"");
-//
-//    //// DOMLSOutput-----------------------------------------
-//    DOMLSOutput* theOutPut = domImpl->createLSOutput();
-//    theOutPut->setEncoding(XMLString::transcode("UTF-8"));
-//    ////-----------------------------------------------------
-//
-//    //// DOMLSSerializer-------------------------------------
-//    DOMLSSerializer* theSerializer = domImpl->createLSSerializer();
-//    ////-----------------------------------------------------
-//
-//    //// Error Handler---------------------------------------
-//    DOMErrorHandler* myErrorHandler = new DOMPrintErrorHandler();
-//    ////-----------------------------------------------------
-//
-//    //// Configure-------------------------------------------
-//    DOMConfiguration* serializerConfig = theSerializer->getDomConfig();
-//    // Set Error Handler
-//    serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, myErrorHandler);
-//    // Set Pretty Print
-//    if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
-//        serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-//    ////-----------------------------------------------------
-//
-//    //// Format Target---------------------------------------
-//    XMLFormatTarget* myFormTarget = new StdOutFormatTarget();
-//    ////-----------------------------------------------------
-//
-//    ////-----------------------------------------------------
-//    theOutPut->setByteStream(myFormTarget);
-//
-//    XMLPlatformUtils::Terminate();
-//}
 
 void TestTranscode()
 {
     XMLPlatformUtils::Initialize();
 
     std::string str = "HelloWorld";
-    XMLCh *transcoded = TranscodeFromStr(
+
+    XMLCh *a = TranscodeFromStr(
+        (XMLByte*)str.c_str(),
+        XMLString::stringLen(str.c_str()),
+        "utf-8").adopt();
+
+    XMLCh* b = TranscodeFromStr(
         (XMLByte*)str.c_str(),
         XMLString::stringLen(str.c_str()),
         "US-ASCII").adopt();
 
-    XMLByte *untranscoded = TranscodeToStr(
-        transcoded,
-        "US-ASCII").adopt();
+    XMLCh* c = TranscodeFromStr(
+        (XMLByte*)str.c_str(),
+        XMLString::stringLen(str.c_str()),
+        "iso8859-1").adopt();
 
-    char *result = XMLString::transcode(transcoded);
+    XMLCh* d = TranscodeFromStr(
+        (XMLByte*)str.c_str(),
+        XMLString::stringLen(str.c_str()),
+        "utf-16").adopt();
+
+    XMLCh* e = TranscodeFromStr(
+        (XMLByte*)str.c_str(),
+        XMLString::stringLen(str.c_str()),
+        "utf-16be").adopt();
+
+    XMLCh* f = TranscodeFromStr(
+        (XMLByte*)str.c_str(),
+        XMLString::stringLen(str.c_str()),
+        "utf-16le").adopt();
+
+    //XMLByte *untranscoded = TranscodeToStr(
+    //    a,
+    //    "US-ASCII").adopt();
+
+    //char *result = XMLString::transcode(a);
 
     //std::cout << result << std::endl;
 
