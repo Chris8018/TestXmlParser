@@ -31,7 +31,7 @@
 
 #include <xercesc/util/OutOfMemoryException.hpp>
 
-#include <xercesc/util/HexBin.hpp>
+//#include <xercesc/util/HexBin.hpp>
 
 // Define namespace symbols (Otherwise we'd have to prefix Xerces code with 
 // "XERCES_CPP_NAMESPACE::")
@@ -358,13 +358,13 @@ void TestParserFromFile()
     domParser->setValidationSchemaFullChecking(gSchemaFullChecking);
     domParser->setValidationConstraintFatal(gValidationConstraintFatal);
 
+    domParser->setHandleMultipleImports(gHandleMultipleImport);
+
     //domParser->setExternalNoNamespaceSchemaLocation
     //domParser->setLoadSchema
     //domParser->getExternalSchemaLocation
 
     domParser->setDoNamespaces(gDoNamespaces);
-
-    domParser->setHandleMultipleImports(gHandleMultipleImport);
 
     domParser->setCreateEntityReferenceNodes(gDoCreate);
 
@@ -464,6 +464,8 @@ void TestParserFromFile()
             << XERCES_STD_QUALIFIER endl
             << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
     }
+
+    delete domParser;
 
     XMLPlatformUtils::Terminate();
 }
