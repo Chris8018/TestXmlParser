@@ -13,11 +13,13 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: Make build dir
-      run: mkdir build
-    - name: Go to build dir
-      run: cd build
-    - name: Gen make file
-      run: cmake -G "Unix Makefiles" DCMAKE_BUILD_TYPE=Debug ../
-    - name: make
-      run: make -j8
+    - name: List Files
+      run: ls
+#     - name: Make build dir
+#       run: mkdir build
+#     - name: Go to build dir
+#       run: cd build
+#     - name: Gen make file
+#       run: cmake -G "Unix Makefiles" DCMAKE_BUILD_TYPE=Debug ../
+#     - name: make
+#       run: make -j8
