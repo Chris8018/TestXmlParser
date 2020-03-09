@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: C/C++ CMake CI
 
 on:
   push:
@@ -7,19 +7,37 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  build_ubuntu:
+    runs-on: ubuntu-18.04
     
     steps:
     - uses: actions/checkout@v2
-    - name: Move to Out side of Src
-      run: cd ..
-    - name: Make build dir
-      run: mkdir build
-    - name: Go to build dir
-      run: cd build
-    - name: Gen make file
-      run: cmake -G "Unix Makefiles" DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
+      
+    - name: configure
+      run: cd .. && mkdir build && cd build
+      
+    - name: Build on Linux
+      run: cmake -G "Unix Makefiles" -DCMAKE_GENERATOR_PLATFORM=x86 DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
     - name: make
       run: make -j8
+      
+    - name: try run
+      run: cd bin && ./TestXerces
+  
+  build_windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: configure
+        run: cd .. && mkdir build && cd build
+      
+      - name: Build on Windows
+        run: cmake -G "Visual Studio 15 2017" -DCMAKE_GENERATOR_PLATFORM=x86 DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
+      - name: cmake build
+        run: cmake --build . --config Debug
+        
+      - name: try run
+        run: cd bin && ./TestXerces
+        
+      
