@@ -20,7 +20,7 @@ jobs:
     - name: Build on Linux
       run: cmake -G Ninja DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
     - name: ninja build
-      run: ninja -V -j 8
+      run: ninja --version -j 8
       
     - name: try run
       run: cd bin && ./TestXerces
