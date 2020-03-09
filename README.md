@@ -1,6 +1,6 @@
 # Test XML Parser Library for C++
 
-![C/C++ CI](https://github.com/Chris8018/TestXmlParser/workflows/C/C++%20CI/badge.svg)
+![C/C++ CMake CI](https://github.com/Chris8018/TestXmlParser/workflows/C/C++%20CMake%20CI/badge.svg)
 
 The purpose of this is to test some C++ XML Libs to see what they are cable of and how they will fit with emotive project.
 
