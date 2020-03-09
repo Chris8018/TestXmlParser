@@ -13,8 +13,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       
+    - name: Install ninja-build tool
+    - uses: seanmiddleditch/gha-setup-ninja@v1
+      
     - name: configure
-      run: apt install ninja-build && cd .. && mkdir build && cd build
+      run: cd .. && mkdir build && cd build
       
     - name: Build on Linux
       run: cmake -G Ninja DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
@@ -28,9 +31,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-        
+      
+      - name: Install ninja-build tool
+      - uses: seanmiddleditch/gha-setup-ninja@v1
+
       - name: configure
-        run: choco install ninja; cd ..; mkdir build; cd build
+        run: cd ..; mkdir build; cd build
       
       - name: Build on Windows
         run: cmake -G Ninja DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
