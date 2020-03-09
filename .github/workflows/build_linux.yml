@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build_ubuntu:
+  build:
     runs-on: ubuntu-18.04
     
     steps:
@@ -23,22 +23,6 @@ jobs:
       run: ninja --version -j 8
       
     - name: try run
-      run: cd bin && ./TestXerces
-  
-  build_windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: seanmiddleditch/gha-setup-ninja@v1
-
-      - name: configure
-        run: cd ..; mkdir build; cd build
+      #run: cd bin && ./TestXerces
+      run: ls
       
-      - name: Build on Windows
-        run: cmake -G Ninja DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
-      - name: ninja build
-        run: ninja -V -j 8
-        
-      - name: try run
-        run: cd bin; ./TestXerces
-        
