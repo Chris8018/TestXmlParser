@@ -17,7 +17,7 @@ jobs:
       run: cd .. && mkdir build && cd build
       
     - name: Build on Linux
-      run: cmake -G "Unix Makefiles" -DCMAKE_GENERATOR_PLATFORM=x86 DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
+      run: cmake -G "Unix Makefiles" -DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_FLAGS=-m32 DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
     - name: make
       run: make -j8
       
@@ -30,10 +30,10 @@ jobs:
       - uses: actions/checkout@v2
         
       - name: configure
-        run: cd .. && mkdir build && cd build
+        run: cd ..; mkdir build; cd build
       
       - name: Build on Windows
-        run: cmake -G "Visual Studio 15 2017" -DCMAKE_GENERATOR_PLATFORM=x86 DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
+        run: cmake -G "Visual Studio 15 2017" -A Win32 ../TestXmlParser
       - name: cmake build
         run: cmake --build . --config Debug
         
