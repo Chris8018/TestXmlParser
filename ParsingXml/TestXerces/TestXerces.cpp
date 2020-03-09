@@ -287,6 +287,10 @@ void TestParserFromFile()
 <Hello_World>
     <child1/>
 </Hello_World>)");
+    xmls.push_back(R"(<?xml version="1.0" encoding="utf-16le" standalone="no" ?>
+<Hello_World>
+    <child1/>
+</Hello_World>)");
 
     //// Choose XML file to parse
     std::string gXmlFile = paths[0];
