@@ -287,17 +287,24 @@ void TestParserFromFile()
 <Hello_World>
     <child1/>
 </Hello_World>)");
-    xmls.push_back(R"(<?xml version="1.0" encoding="utf-16le" standalone="no" ?>
+    xmls.push_back(R"(
 <Hello_World>
     <child1/>
-</Hello_World>)");
+</Hello_World>
+)");
+    xmls.push_back("");
+    xmls.push_back(R"(<?xml version="1.0" encoding="utf-16le" standalone="no" ?>
+)");
+
 
     //// Choose XML file to parse
     std::string gXmlFile = paths[0];
 
     //// Choose XML String to parse
-    std::string xmlString = xmls[1];
+    std::string xmlString = xmls[4];
     bool fromMemory = true;
+
+    std::cout << xmls[4] << std::endl;
 
     // Initialze
     try
