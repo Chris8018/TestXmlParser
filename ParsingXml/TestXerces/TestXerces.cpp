@@ -246,9 +246,9 @@ void DOMTreeErrorReporter::resetErrors()
 
 int main(void)
 {
-    //toFile = true;
+    toFile = true;
 
-    //CreateAndPrint();
+    CreateAndPrint();
 
     //CreateAndPrintSmartPointer();
 
@@ -262,7 +262,7 @@ int main(void)
 
     //TestTranscode();
 
-    TestParserFromFile();
+    //TestParserFromFile();
 
     return 0;
 }
@@ -301,7 +301,7 @@ void TestParserFromFile()
     std::string gXmlFile = paths[0];
 
     //// Choose XML String to parse
-    std::string xmlString = xmls[4];
+    std::string xmlString = xmls[1];
     bool fromMemory = true;
 
     std::cout << xmls[4] << std::endl;
@@ -456,6 +456,10 @@ void TestParserFromFile()
         auto b = doc1->getXmlEncoding();
 
         //doc1->getDocumentElement()->pos
+
+        auto ele1 = doc1->getDocumentElement();
+
+        theSerializer->write(ele1, theOutPut);
 
         theSerializer->write(doc1, theOutPut);
     }
@@ -691,7 +695,18 @@ void CreateAndPrint()
 {
     std::cout << "CreateAndPrintOnConsole" << std::endl;
 
-    std::vector<std::string> paths = { "D:\\Workspace\\XmlStorage\\SavedData_xerces_utf16le.xml" };
+    std::vector<std::string> paths;
+    paths.push_back("D:\\Workspace\\XmlStorage\\SavedData_xerces_utf16le.xml");
+
+    paths.push_back("SaveTest.xml");
+    paths.push_back("XmlStorage\\SaveTest.xml");
+    paths.push_back("\\..\\SaveTest.xml"); // save at root
+
+    paths.push_back("C:\\Users\\Emotive\\CMakeBuilds\\testXmlParser\\build\\bin\\XmlStorate\\SaveTest.xml");
+
+    paths.push_back("D:\\Workspace\\XmlStorage\\SaveTest.xml");
+
+    std::string path = paths[3];
 
     // Initialze
     try
@@ -881,7 +896,7 @@ void CreateAndPrint()
     XMLFormatTarget *myFormTarget;
 
     if (toFile)
-        myFormTarget = new LocalFileFormatTarget(paths[0].c_str());
+        myFormTarget = new LocalFileFormatTarget(path.c_str());
     else
         myFormTarget = new StdOutFormatTarget();
     ////-----------------------------------------------------
@@ -900,7 +915,7 @@ void CreateAndPrint()
 
     // Print on Console
     std::cout << "Dom Doc 2" << std::endl;
-    theSerializer->write(domDoc2, theOutPut);
+    //theSerializer->write(domDoc2, theOutPut);
 
     std::cout << "\n";
     std::cout << "\n";
@@ -912,7 +927,7 @@ void CreateAndPrint()
 
     // Print on Console
     std::cout << "Dom Elem 1" << std::endl;
-    theSerializer->write(domEle1, theOutPut);
+    //theSerializer->write(domEle1, theOutPut);
 
     std::cout << "\n";
     std::cout << "\n";
@@ -920,7 +935,7 @@ void CreateAndPrint()
 
     // Print on Console
     std::cout << "Dom Elem 6" << std::endl;
-    theSerializer->write(domEle6, theOutPut);
+    //theSerializer->write(domEle6, theOutPut);
 
     std::cout << "\n";
     std::cout << "\n";
@@ -945,7 +960,7 @@ void CreateAndPrint()
 
     // Print on Console
     std::cout << "Check Append" << std::endl;
-    theSerializer->write(ele1, theOutPut);
+    //theSerializer->write(ele1, theOutPut);
 
     std::cout << "\n";
     std::cout << "\n";
@@ -953,7 +968,7 @@ void CreateAndPrint()
 
     // Print on Console
     std::cout << "Check Append" << std::endl;
-    theSerializer->write(ele3, theOutPut);
+    //theSerializer->write(ele3, theOutPut);
 
     std::cout << "\n";
     std::cout << "\n";
@@ -964,7 +979,7 @@ void CreateAndPrint()
 
     // Print on Console
     std::cout << "Check Append" << std::endl;
-    theSerializer->write(ele1, theOutPut);
+    //theSerializer->write(ele1, theOutPut);
 
     std::cout << "\n";
     std::cout << "\n";
@@ -972,7 +987,7 @@ void CreateAndPrint()
 
     // Print on Console
     std::cout << "Check Append" << std::endl;
-    theSerializer->write(ele3, theOutPut);
+    //theSerializer->write(ele3, theOutPut);
 
     std::cout << "\n";
     std::cout << "\n";
