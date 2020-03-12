@@ -214,6 +214,8 @@ void DOMTreeErrorReporter::warning(const SAXParseException &toCatch)
     //    << "\n   Message: " << StrX(toCatch.getMessage()) << XERCES_STD_QUALIFIER endl;
 
     std::cout << "Warning: " << StrX(toCatch.getMessage()) << std::endl;
+    std::cout << "Column: " << toCatch.getColumnNumber() << std::endl;
+    std::cout << "Line: " << toCatch.getLineNumber() << std::endl;
 }
 
 void DOMTreeErrorReporter::error(const SAXParseException& toCatch)
@@ -225,6 +227,8 @@ void DOMTreeErrorReporter::error(const SAXParseException& toCatch)
     //    << "\n   Message: " << StrX(toCatch.getMessage()) << XERCES_STD_QUALIFIER endl;
 
     std::cout << "Error: " << StrX(toCatch.getMessage()) << std::endl;
+    std::cout << "Column: " << toCatch.getColumnNumber() << std::endl;
+    std::cout << "Line: " << toCatch.getLineNumber() << std::endl;
 }
 
 void DOMTreeErrorReporter::fatalError(const SAXParseException& toCatch)
@@ -236,6 +240,8 @@ void DOMTreeErrorReporter::fatalError(const SAXParseException& toCatch)
     //    << "\n   Message: " << StrX(toCatch.getMessage()) << XERCES_STD_QUALIFIER endl;
 
     std::cout << "Fatal: " << StrX(toCatch.getMessage()) << std::endl;
+    std::cout << "Column: " << toCatch.getColumnNumber() << std::endl;
+    std::cout << "Line: " << toCatch.getLineNumber() << std::endl;
 }
 
 void DOMTreeErrorReporter::resetErrors()
@@ -248,7 +254,7 @@ int main(void)
 {
     toFile = true;
 
-    CreateAndPrint();
+    //CreateAndPrint();
 
     //CreateAndPrintSmartPointer();
 
@@ -262,7 +268,7 @@ int main(void)
 
     //TestTranscode();
 
-    //TestParserFromFile();
+    TestParserFromFile();
 
     return 0;
 }
@@ -275,6 +281,11 @@ void TestParserFromFile()
     std::vector<std::string> paths;
     paths.push_back("XmlStorage/simple.xml");
     paths.push_back("XmlStorage/XmlFileWithNotExistingXsd.xml");
+
+    paths.push_back("XmlStorage/InvalidXsd.xml");
+
+    paths.push_back("XmlStorage/notExistFiles.xml");
+    paths.push_back("XmlStorage/notwellformed.xml");
 
 
     //// Xml String
@@ -298,11 +309,11 @@ void TestParserFromFile()
 
 
     //// Choose XML file to parse
-    std::string gXmlFile = paths[0];
+    std::string gXmlFile = paths[3];
 
     //// Choose XML String to parse
     std::string xmlString = xmls[1];
-    bool fromMemory = true;
+    bool fromMemory = false;
 
     std::cout << xmls[4] << std::endl;
 
@@ -355,9 +366,9 @@ void TestParserFromFile()
     //// Set up Parser
     XercesDOMParser* domParser = new XercesDOMParser;
 
-    auto gValScheme = XercesDOMParser::Val_Auto;
+    auto gValScheme = XercesDOMParser::Val_Always;
     bool gDoSchema = true;
-    bool gSchemaFullChecking = false;
+    bool gSchemaFullChecking = true;
     bool gValidationConstraintFatal = false;
 
     bool gDoNamespaces = true;
@@ -695,8 +706,10 @@ void CreateAndPrint()
 {
     std::cout << "CreateAndPrintOnConsole" << std::endl;
 
+    std::string encoding = "ISO-8859-1";
+
     std::vector<std::string> paths;
-    paths.push_back("D:\\Workspace\\XmlStorage\\SavedData_xerces_utf16le.xml");
+    paths.push_back("D:\\Workspace\\XmlStorage\\xml_iso_8859_1.xml");
 
     paths.push_back("SaveTest.xml");
     paths.push_back("XmlStorage\\SaveTest.xml");
@@ -706,7 +719,7 @@ void CreateAndPrint()
 
     paths.push_back("D:\\Workspace\\XmlStorage\\SaveTest.xml");
 
-    std::string path = paths[3];
+    std::string path = paths[0];
 
     // Initialze
     try
@@ -869,7 +882,7 @@ void CreateAndPrint()
 
     //// DOMLSOutput-----------------------------------------
     DOMLSOutput *theOutPut = domImpl->createLSOutput();
-    theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+    theOutPut->setEncoding(XMLString::transcode(encoding.c_str()));
     ////-----------------------------------------------------
 
     // Check encoding type
