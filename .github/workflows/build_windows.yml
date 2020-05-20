@@ -16,9 +16,9 @@ jobs:
         run: cd ..; mkdir build; cd build
       
       - name: Gen cmake cache for Windows
-        run: cmake -G "Visual Studio 15 2017 x32" ../TestXmlParser
+        run: cmake -G "Visual Studio 15 2017" ../TestXmlParser
       - name: Build on Windows
-        run: cmake --build . --parallel 8 --config Release
+        run: cmake --build build --config Release
         
       - name: Try run
         run: cd bin; ./TestXerces
