@@ -18,11 +18,11 @@ jobs:
       run: cd .. && mkdir build && cd build
       
     - name: Build on Linux
-      run: cmake -G Ninja DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
-    - name: ninja build
-      run: ninja --version -j 8
+      run: cmake -G "Unix Makefiles" ../TestXmlParser
+    - name: Build
+      run: cmake --build . --parallel 8 --config Release
       
-    - name: try run
+    - name: Try run
       #run: cd bin && ./TestXerces
       run: ls
       
