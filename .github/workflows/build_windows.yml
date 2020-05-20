@@ -17,10 +17,10 @@ jobs:
         run: cd ..; mkdir build; cd build
       
       - name: Gen cmake cache
-        run: cmake -G Ninja DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
+        run: cmake -G "Visual Studio 15 2017" DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
       - name: Build
-        run: cmake --build build
+        run: cmake --build . --config Release
         
-      - name: try run
+      - name: Try run
         run: cd bin; ./TestXerces
         
