@@ -8,16 +8,15 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2016
     steps:
       - uses: actions/checkout@v2
-      - uses: seanmiddleditch/gha-setup-ninja@v1
 
       - name: configure
         run: cd ..; mkdir build; cd build
       
       - name: Gen cmake cache for Windows
-        run: cmake ../TestXmlParser
+        run: cmake -G "Visual Studio 15 2017" ../TestXmlParser
       - name: Build on Windows
         run: cmake --build . --parallel 8 --config Release
         
