@@ -19,7 +19,7 @@ jobs:
       - name: Gen cmake cache
         run: cmake -G "Visual Studio 15 2017" DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
       - name: Build
-        run: cmake --build . --config Release
+        run: cmake --build . --parallel 8 --config Release
         
       - name: Try run
         run: cd bin; ./TestXerces
