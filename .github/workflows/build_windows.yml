@@ -16,10 +16,10 @@ jobs:
       - name: configure
         run: cd ..; mkdir build; cd build
       
-      - name: Build on Windows
+      - name: Gen cmake cache
         run: cmake -G Ninja DCMAKE_BUILD_TYPE=Debug ../TestXmlParser
-      - name: ninja build
-        run: ninja -V -j 8
+      - name: Build
+        run: cmake --build build
         
       - name: try run
         run: cd bin; ./TestXerces
