@@ -1,28 +1,28 @@
-name: C/C++ CMake CI
+#name: C/C++ CMake CI
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
 
-jobs:
-  build:
-    runs-on: ubuntu-18.04
-    
-    steps:
-    - uses: actions/checkout@v2
-    - uses: seanmiddleditch/gha-setup-ninja@v1
-      
-    - name: configure
-      run: cd .. && mkdir build && cd build
-      
-    - name: Gen cmake cache for Linux
-      run: cmake -G "Unix Makefiles" ../TestXmlParser
-    - name: Build on Linux
-      run: cmake --build . --parallel 8 --config Release
-      
-    - name: Try run
-      #run: cd bin && ./TestXerces
-      run: ls
-      
+#jobs:
+#  build:
+#    runs-on: ubuntu-18.04
+#
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: seanmiddleditch/gha-setup-ninja@v1
+#
+#    - name: configure
+#      run: cd .. && mkdir build && cd build
+#
+#    - name: Gen cmake cache for Linux
+#      run: cmake -G "Unix Makefiles" ../TestXmlParser
+#    - name: Build on Linux
+#      run: cmake --build . --parallel 8 --config Release
+#
+#    - name: Try run
+#      #run: cd bin && ./TestXerces
+#      run: ls
+#
