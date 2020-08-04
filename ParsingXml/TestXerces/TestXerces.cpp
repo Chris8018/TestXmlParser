@@ -5,16 +5,8 @@
 
 // DOM (if you want SAX, then that's a different include)
 #include <xercesc/dom/DOM.hpp>
-#include <xercesc/dom/DOMLSSerializer.hpp>
-//#include <xercesc/dom/DOMNode.hpp>
-
-#include <xercesc/dom/impl/DOMImplementationImpl.hpp>
 
 #include <xercesc/util/XMLString.hpp>
-
-#include <xercesc/dom/DOMErrorHandler.hpp>
-
-#include <xercesc/dom/DOMError.hpp>
 
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -69,6 +61,10 @@ void TestTranscode();
 void TestParserFromFile();
 
 void TestParserFromString();
+
+void TestDomFragment();
+
+void PrintDOMNode(DOMNode* node);
 
 bool toFile = false;
 
@@ -252,6 +248,17 @@ void DOMTreeErrorReporter::resetErrors()
 
 int main(void)
 {
+    // Initialze
+    try
+    {
+        XMLPlatformUtils::Initialize();
+    }
+    catch (const XMLException& e)
+    {
+        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
+        return 1;
+    }
+
     toFile = true;
 
     //CreateAndPrint();
@@ -268,9 +275,90 @@ int main(void)
 
     //TestTranscode();
 
-    TestParserFromFile();
+    //TestParserFromFile();
+
+    TestDomFragment();
+
+    XMLPlatformUtils::Terminate();
 
     return 0;
+}
+
+void TestDomFragment()
+{
+    // DOMImpl
+    DOMImplementation* domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    auto ownerDoc = domImpl->createDocument();
+
+    auto docFragment = ownerDoc->createDocumentFragment();
+
+    //<?xml version="1.0" encoding="UTF-8" ?>
+    auto pi1 = ownerDoc->createProcessingInstruction(u"xml", u"version=\"1.0\" encoding=\"UTF-8\"");
+
+    docFragment->appendChild(pi1);
+
+    PrintDOMNode(docFragment);
+}
+
+void PrintDOMNode(DOMNode* node)
+{
+    // DOMImpl
+    DOMImplementation* domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    //// DOMLSOutput-----------------------------------------
+    DOMLSOutput* theOutPut = domImpl->createLSOutput();
+    //theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+    ////-----------------------------------------------------
+
+    //// DOMLSSerializer-------------------------------------
+    DOMLSSerializer* theSerializer = domImpl->createLSSerializer();
+    ////-----------------------------------------------------
+
+    //// Error Handler---------------------------------------
+    DOMErrorHandler* myErrorHandler = new DOMPrintErrorHandler();
+    ////-----------------------------------------------------
+
+    //// Configure-------------------------------------------
+    DOMConfiguration* serializerConfig = theSerializer->getDomConfig();
+    // Set Error Handler
+    serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, myErrorHandler);
+    // Set Pretty Print
+    if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+        serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+    ////-----------------------------------------------------
+
+    //// Format Target---------------------------------------
+    XMLFormatTarget* myFormTarget = new StdOutFormatTarget();
+    ////-----------------------------------------------------
+
+    ////-----------------------------------------------------
+    theOutPut->setByteStream(myFormTarget);
+
+
+    // PRINT
+    try
+    {
+        theSerializer->write(node, theOutPut);
+    }
+    catch (const OutOfMemoryException&)
+    {
+        XERCES_STD_QUALIFIER cerr << "OutOfMemoryException" << XERCES_STD_QUALIFIER endl;
+    }
+    catch (const DOMLSException& e)
+    {
+        XERCES_STD_QUALIFIER cerr << "An error occurred during serialization of the DOM tree. Msg is:"
+            << XERCES_STD_QUALIFIER endl
+            << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
+    }
+    catch (const XMLException& e)
+    {
+        XERCES_STD_QUALIFIER cerr << "An error occurred during creation of output transcoder. Msg is:"
+            << XERCES_STD_QUALIFIER endl
+            << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
+    }
 }
 
 void TestParserFromFile()
@@ -316,17 +404,6 @@ void TestParserFromFile()
     bool fromMemory = false;
 
     std::cout << xmls[4] << std::endl;
-
-    // Initialze
-    try
-    {
-        XMLPlatformUtils::Initialize();
-    }
-    catch (const XMLException & e)
-    {
-        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
-        return;
-    }
 
     // DOMImpl
     DOMImplementation* domImpl =
@@ -492,14 +569,10 @@ void TestParserFromFile()
     }
 
     delete domParser;
-
-    XMLPlatformUtils::Terminate();
 }
 
 void TestTranscode()
 {
-    XMLPlatformUtils::Initialize();
-
     std::string str = "HelloWorld";
 
     XMLCh *a = TranscodeFromStr(
@@ -539,24 +612,11 @@ void TestTranscode()
     //char *result = XMLString::transcode(a);
 
     //std::cout << result << std::endl;
-
-    XMLPlatformUtils::Terminate();
 }
 
 void TestXPath()
 {
     std::cout << "XPath testing" << std::endl;
-
-    // Initialze
-    try
-    {
-        XMLPlatformUtils::Initialize();
-    }
-    catch (const XMLException & e)
-    {
-        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
-        return;
-    }
 
     // DOMImpl
     DOMImplementation *domImpl =
@@ -698,8 +758,6 @@ void TestXPath()
     }
 
     theSerializer->write(root, theOutPut);
-
-    XMLPlatformUtils::Terminate();
 }
 
 void CreateAndPrint()
@@ -720,17 +778,6 @@ void CreateAndPrint()
     paths.push_back("D:\\Workspace\\XmlStorage\\SaveTest.xml");
 
     std::string path = paths[0];
-
-    // Initialze
-    try
-    {
-        XMLPlatformUtils::Initialize();
-    }
-    catch (const XMLException &e)
-    {
-        std::cout << XMLString::transcode(e.getMessage()) << std::endl;
-        return;
-    }
 
     // DOMImpl
     //XMLCh features[3] = { (XMLCh)76U, (XMLCh)83U, (XMLCh)0U };
@@ -1035,7 +1082,6 @@ void CreateAndPrint()
     //domDoc1->release();
     //delete domDoc1;
     domDoc2->release();
-    XMLPlatformUtils::Terminate();
 }
 
 // FAILED BADLY
@@ -1044,17 +1090,6 @@ void CreateAndPrintSmartPointer()
     std::cout << "CreateAndPrintOnConsole With Smart Pointer" << std::endl;
 
     std::vector<std::string> paths = { "D:\\Workspace\\XmlStorage\\SavedData_xerces_utf16le.xml" };
-
-    // Initialze
-    try
-    {
-        XMLPlatformUtils::Initialize();
-    }
-    catch (const std::exception & e)
-    {
-        std::cout << e.what() << std::endl;
-        return;
-    }
 
     // DOMImpl
     XMLCh features[3] = { (XMLCh)76U, (XMLCh)83U, (XMLCh)0U };
@@ -1164,7 +1199,6 @@ void CreateAndPrintSmartPointer()
     /*theOutPut->release();
     theSerializer->release();
     domDoc1->release();*/
-    XMLPlatformUtils::Terminate();
     //domImpl.reset();
 }
 
@@ -1173,17 +1207,6 @@ void TryDomDocFragment()
     std::cout << "Try Dom Doc Fragment" << std::endl;
 
     std::vector<std::string> paths = { "D:\\Workspace\\XmlStorage\\SavedData_xerces_NonDocument.xml" };
-
-    // Initialze
-    try
-    {
-        XMLPlatformUtils::Initialize();
-    }
-    catch (const std::exception & e)
-    {
-        std::cout << e.what() << std::endl;
-        return;
-    }
 
     // DOMImpl
     XMLCh features[3] = { (XMLCh)76U, (XMLCh)83U, (XMLCh)0U };
@@ -1306,8 +1329,6 @@ void TryDomDocFragment()
     //domFrag1->release();
 
     doc1->release();
-
-    XMLPlatformUtils::Terminate();
 }
 
 void CreateElement(DOMDocument *doc);
@@ -1315,17 +1336,6 @@ void CreateElement(DOMDocument *doc);
 void TestSimpleMemoryLeak()
 {
     std::cout << "Test Memory Leak" << std::endl;
-
-    // Initialze
-    try
-    {
-        XMLPlatformUtils::Initialize();
-    }
-    catch (const XMLException & e)
-    {
-        //std::cout << e.what() << std::endl;
-        return;
-    }
 
     DOMImplementation *domImpl =
         DOMImplementationRegistry::getDOMImplementation(u"");
@@ -1355,8 +1365,6 @@ void TestSimpleMemoryLeak()
 
     doc1->release();
     doc2->release();
-
-    XMLPlatformUtils::Terminate();
 }
 
 void CreateElement(DOMDocument *doc)
@@ -1431,17 +1439,6 @@ void TestSomeCase()
 {
     std::cout << "Test Memory Leak" << std::endl;
 
-    // Initialze
-    try
-    {
-        XMLPlatformUtils::Initialize();
-    }
-    catch (const XMLException & e)
-    {
-        //std::cout << e.what() << std::endl;
-        return;
-    }
-
     DOMImplementation *domImpl =
         DOMImplementationRegistry::getDOMImplementation(u"");
 
@@ -1453,24 +1450,11 @@ void TestSomeCase()
     //}
 
     doc1->release();
-
-    XMLPlatformUtils::Terminate();
 }
 
 void TestParser()
 {
     std::cout << "Test Memory Leak" << std::endl;
-
-    // Initialze
-    try
-    {
-        XMLPlatformUtils::Initialize();
-    }
-    catch (const XMLException & e)
-    {
-        //std::cout << e.what() << std::endl;
-        return;
-    }
 
     DOMImplementation *domImpl =
         DOMImplementationRegistry::getDOMImplementation(u"");
@@ -1478,8 +1462,6 @@ void TestParser()
     DOMDocument *doc1 = domImpl->createDocument();
 
     doc1->release();
-
-    XMLPlatformUtils::Terminate();
 }
 
 std::string convertUTF16_UTF8(XMLCh *str)
