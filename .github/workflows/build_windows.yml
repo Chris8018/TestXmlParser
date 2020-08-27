@@ -18,4 +18,4 @@ jobs:
      - name: Gen cmake cache for Windows
        run: cmake -G "Visual Studio 15 2017" ../TestXmlParser
      - name: Build on Windows
-       run: cmake --build build --config Release
+       run: cmake --build . --parallel 8 --config Release
