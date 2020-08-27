@@ -64,6 +64,10 @@ void TestParserFromString();
 
 void TestDomFragment();
 
+void TestDomRelease();
+
+void TestReleaseOwnedDocument();
+
 void PrintDOMNode(DOMNode* node);
 
 bool toFile = false;
@@ -277,11 +281,54 @@ int main(void)
 
     //TestParserFromFile();
 
-    TestDomFragment();
+    //TestDomFragment();
+
+    //TestDomRelease();
+
+    TestReleaseOwnedDocument();
 
     XMLPlatformUtils::Terminate();
 
     return 0;
+}
+
+// This will break
+void TestReleaseOwnedDocument()
+{
+    // DOMImpl
+    DOMImplementation* domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    auto ownerDoc = domImpl->createDocument();
+
+    auto child1 = ownerDoc->createElement(u"child1");
+
+    ownerDoc->release();
+
+    child1->getNodeType();
+}
+
+void TestParserFromString()
+{}
+
+void TestDomRelease()
+{
+    // DOMImpl
+    DOMImplementation* domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    auto ownerDoc = domImpl->createDocument();
+
+    auto root = ownerDoc->createElement(u"root");
+
+    auto child1 = ownerDoc->createElement(u"child1");
+
+    root->appendChild(child1);
+
+    child1->release();
+    root->release();
+
+    ownerDoc->release();
 }
 
 void TestDomFragment()

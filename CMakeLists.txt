@@ -17,7 +17,7 @@ if (WIN32)
     endif()
 
 else ()
-    message ("What the FUCK!!")
+    message ("Not Windows OS")
 endif ()
 
 #Using /std:c++14
