@@ -1,25 +1,21 @@
-#name: C/C++ CMake CI
+name: C/C++ CMake CI
 
-#on:
-#  push:
-#    branches: [ master ]
-#  pull_request:
-#    branches: [ master ]
-#
-#jobs:
-#  build:
-#    runs-on: windows-2016
-#    steps:
-#      - uses: actions/checkout@v2
-#
-#      - name: configure
-#        run: cd ..; mkdir build; cd build
-#
-#      - name: Gen cmake cache for Windows
-#        run: cmake -G "Visual Studio 15 2017" ../TestXmlParser
-#      - name: Build on Windows
-#        run: cmake --build build --config Release
-#
-#      - name: Try run
-#        run: cd bin; ./TestXerces
-#
+on:
+ push:
+   branches: [ master ]
+ pull_request:
+   branches: [ master ]
+
+jobs:
+ build:
+   runs-on: windows-2016
+   steps:
+     - uses: actions/checkout@v2
+
+     - name: configure
+       run: cd ..; mkdir build; cd build
+
+     - name: Gen cmake cache for Windows
+       run: cmake -G "Visual Studio 15 2017" ../TestXmlParser
+     - name: Build on Windows
+       run: cmake --build . --parallel 8 --config Release
