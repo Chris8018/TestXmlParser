@@ -1,14 +1,14 @@
 ﻿# CMakeList.txt : Top-level CMake project file, do global configuration
 # and include sub-projects here.
 #
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.2)
  # Force to always compile with W4 (warning level 4)
 
 message ("Test C++ XML Parser")
 
 if (WIN32)
 
-    message ("Setting up for Windows_x86")
+    message ("Setting up for Windows_x86_32")
 
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W4 /wd4996" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -17,7 +17,7 @@ if (WIN32)
     endif()
 
 else ()
-    message ("What the FUCK!!")
+    message ("Not Windows!!")
 endif ()
 
 #Using /std:c++14

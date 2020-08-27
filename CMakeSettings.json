@@ -1,33 +1,40 @@
 ﻿{
-  "environments": [ {
-                      "VCToolsVersion": "14.16"
-                    } ],
   "configurations": [
     {
-        "name": "x86-Debug",
-        "generator": "Ninja",
-        "configurationType": "Debug",
-        "inheritEnvironments": [
-            "msvc_x86"
-        ],
-        "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\testXMLParser\\build",
-        "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\testXMLParser\\install",
-        "cmakeCommandArgs": "",
-        "buildCommandArgs": "-v",
-        "ctestCommandArgs": ""
+      "name": "x86-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [
+        "msvc_x86"
+      ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\testXMLParser\\build",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\testXMLParser\\install",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "environments": [
+        {
+          "VCToolsVersion": "14.16"
+        }
+      ]
     },
     {
-        "name": "x86-Release",
-        "generator": "Ninja",
-        "configurationType": "RelWithDebInfo",
-        "inheritEnvironments": [
-            "msvc_x86"
-        ],
-        "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\testXMLParser\\build",
-        "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\testXMLParser\\install",
-        "cmakeCommandArgs": "",
-        "buildCommandArgs": "-v",
-        "ctestCommandArgs": ""
+      "name": "x86-Release",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [
+        "msvc_x86"
+      ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\testXMLParser\\build",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\testXMLParser\\install",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "environments": [
+        {
+          "VCToolsVersion": "14.16"
+        }
+      ]
     }
   ]
 }
