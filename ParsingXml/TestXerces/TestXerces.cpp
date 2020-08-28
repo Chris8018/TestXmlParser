@@ -25,7 +25,7 @@
 
 //#include <xercesc/util/HexBin.hpp>
 
-// Define namespace symbols (Otherwise we'd have to prefix Xerces code with 
+// Define namespace symbols (Otherwise we'd have to prefix Xerces code with
 // "XERCES_CPP_NAMESPACE::")
 XERCES_CPP_NAMESPACE_USE
 
@@ -68,7 +68,10 @@ void TestDomRelease();
 
 void TestReleaseOwnedDocument();
 
+void TestAddingMultipleDomFragmentIntoADocument();
+
 void PrintDOMNode(DOMNode* node);
+DOMDocument* ParseXmlFromFile(const std::string& path);
 
 bool toFile = false;
 
@@ -249,7 +252,6 @@ void DOMTreeErrorReporter::resetErrors()
     fSawErrors = false;
 }
 
-
 int main(void)
 {
     // Initialze
@@ -285,11 +287,49 @@ int main(void)
 
     //TestDomRelease();
 
-    TestReleaseOwnedDocument();
+    //TestReleaseOwnedDocument();
+
+    TestAddingMultipleDomFragmentIntoADocument();
 
     XMLPlatformUtils::Terminate();
 
     return 0;
+}
+
+// FAILED BADLY
+void TestAddingMultipleDomFragmentIntoADocument()
+{
+    // DOMImpl
+    DOMImplementation* domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    auto ownerDoc = domImpl->createDocument();
+
+    auto child1 = ownerDoc->createElement(u"child1");
+    auto child2 = ownerDoc->createElement(u"child2");
+    auto child3 = ownerDoc->createElement(u"child3");
+    auto child4 = ownerDoc->createElement(u"child4");
+
+    auto docFragment1 = ownerDoc->createDocumentFragment();
+    auto docFragment2 = ownerDoc->createDocumentFragment();
+    auto docFragment3 = ownerDoc->createDocumentFragment();
+    auto docFragment4 = ownerDoc->createDocumentFragment();
+
+    //<?xml version="1.0" encoding="UTF-8" ?>
+    auto pi1 = ownerDoc->createProcessingInstruction(u"xml", u"version=\"1.0\" encoding=\"UTF-8\"");
+
+    docFragment1->appendChild(pi1);
+    docFragment1->appendChild(child1);
+
+    docFragment2->appendChild(child2);
+
+    docFragment3->appendChild(child3);
+
+    ownerDoc->appendChild(docFragment1);
+    ownerDoc->appendChild(docFragment2);
+    ownerDoc->appendChild(docFragment3);
+
+    PrintDOMNode(ownerDoc);
 }
 
 // This will break
@@ -309,7 +349,19 @@ void TestReleaseOwnedDocument()
 }
 
 void TestParserFromString()
-{}
+{
+    DOMImplementation* domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    auto ownerDoc = domImpl->createDocument();
+
+    auto docFragment = ownerDoc->createDocumentFragment();
+
+    //<?xml version="1.0" encoding="UTF-8" ?>
+    auto pi1 = ownerDoc->createProcessingInstruction(u"xml", u"version=\"1.0\" encoding=\"UTF-8\"");
+
+    docFragment->appendChild(pi1);
+}
 
 void TestDomRelease()
 {
@@ -384,7 +436,6 @@ void PrintDOMNode(DOMNode* node)
     ////-----------------------------------------------------
     theOutPut->setByteStream(myFormTarget);
 
-
     // PRINT
     try
     {
@@ -392,20 +443,114 @@ void PrintDOMNode(DOMNode* node)
     }
     catch (const OutOfMemoryException&)
     {
-        XERCES_STD_QUALIFIER cerr << "OutOfMemoryException" << XERCES_STD_QUALIFIER endl;
+        std::cerr << "OutOfMemoryException" << std::endl;
     }
     catch (const DOMLSException& e)
     {
-        XERCES_STD_QUALIFIER cerr << "An error occurred during serialization of the DOM tree. Msg is:"
-            << XERCES_STD_QUALIFIER endl
-            << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
+        std::cerr << "An error occurred during serialization of the DOM tree. Msg is:"
+            << std::endl
+            << StrX(e.getMessage()) << std::endl;
     }
     catch (const XMLException& e)
     {
-        XERCES_STD_QUALIFIER cerr << "An error occurred during creation of output transcoder. Msg is:"
-            << XERCES_STD_QUALIFIER endl
-            << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
+        std::cerr << "An error occurred during creation of output transcoder. Msg is:"
+            << std::endl
+            << StrX(e.getMessage()) << std::endl;
     }
+
+    theSerializer->release();
+    delete myErrorHandler;
+    theOutPut->release();
+    delete myFormTarget;
+}
+
+DOMDocument* ParseXmlFromFile(const std::string& path)
+{
+    // DOMImpl
+    DOMImplementation* domImpl =
+        DOMImplementationRegistry::getDOMImplementation(u"");
+
+    //// Set up Parser
+    XercesDOMParser domParser;
+
+    auto gValScheme = XercesDOMParser::Val_Always;
+    bool gDoSchema = true;
+    bool gSchemaFullChecking = true;
+    bool gValidationConstraintFatal = false;
+
+    bool gDoNamespaces = true;
+    bool gHandleMultipleImport = true;
+    bool gDoCreate = false;
+
+    domParser.setValidationScheme(gValScheme);
+    domParser.setDoSchema(gDoSchema);
+    domParser.setValidationSchemaFullChecking(gSchemaFullChecking);
+    domParser.setValidationConstraintFatal(gValidationConstraintFatal);
+
+    domParser.setHandleMultipleImports(gHandleMultipleImport);
+
+    //domParser->setExternalNoNamespaceSchemaLocation
+    //domParser->setLoadSchema
+    //domParser->getExternalSchemaLocation
+
+    domParser.setDoNamespaces(gDoNamespaces);
+
+    domParser.setCreateEntityReferenceNodes(gDoCreate);
+
+    DOMTreeErrorReporter* errReporter = new DOMTreeErrorReporter();
+    domParser.setErrorHandler(errReporter);
+
+    std::cout << "Start Parsing" << std::endl;
+    bool errorsOccured = false;
+    try
+    {
+        domParser.parse(path.c_str());
+    }
+    catch (const OutOfMemoryException& e)
+    {
+        std::cerr << "OutOfMemoryException" << std::endl;
+        errorsOccured = true;
+    }
+    catch (const XMLException& e)
+    {
+        std::cerr << "XML error occurred during parsing\n   Message: "
+            << StrX(e.getMessage()) << std::endl;
+        errorsOccured = true;
+    }
+    catch (const DOMException& e)
+    {
+        const unsigned int maxChars = 2047;
+        XMLCh errText[maxChars + 1];
+
+        std::cerr << "\nDOM Error during parsing: '" << path << "'\n"
+            << "DOMException code is:  " << e.code << std::endl;
+
+        if (DOMImplementation::loadDOMExceptionMsg(e.code, errText, maxChars))
+            std::cerr << "Message is: " << StrX(errText) << std::endl;
+
+        errorsOccured = true;
+    }
+    catch (...)
+    {
+        std::cerr << "Unknown error occurred during parsing\n " << std::endl;
+        errorsOccured = true;
+    }
+
+    DOMDocument* document = nullptr;
+
+    // Failed
+    if (!errorsOccured)
+        document = domParser.adoptDocument();
+
+    //// Check for error report
+    if (errReporter->getSawErrors())
+        std::cout << "Got Error when parsing" << std::endl;
+
+    std::cout << "Clean up parser" << std::endl;
+    //domParser.
+    delete errReporter;
+
+    return document;
 }
 
 void TestParserFromFile()
@@ -421,7 +566,6 @@ void TestParserFromFile()
 
     paths.push_back("XmlStorage/notExistFiles.xml");
     paths.push_back("XmlStorage/notwellformed.xml");
-
 
     //// Xml String
     std::vector<std::string> xmls;
@@ -544,13 +688,13 @@ void TestParserFromFile()
     }
     catch (const OutOfMemoryException&)
     {
-        XERCES_STD_QUALIFIER cerr << "OutOfMemoryException" << XERCES_STD_QUALIFIER endl;
+        std::cerr << "OutOfMemoryException" << std::endl;
         errorsOccured = true;
     }
     catch (const XMLException & e)
     {
-        XERCES_STD_QUALIFIER cerr << "XML error occurred during parsing\n   Message: "
-            << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
+        std::cerr << "XML error occurred during parsing\n   Message: "
+            << StrX(e.getMessage()) << std::endl;
         errorsOccured = true;
     }
     catch (const DOMException & e)
@@ -558,11 +702,11 @@ void TestParserFromFile()
         const unsigned int maxChars = 2047;
         XMLCh errText[maxChars + 1];
 
-        XERCES_STD_QUALIFIER cerr << "\nDOM Error during parsing: '" << gXmlFile << "'\n"
-            << "DOMException code is:  " << e.code << XERCES_STD_QUALIFIER endl;
+        std::cerr << "\nDOM Error during parsing: '" << gXmlFile << "'\n"
+            << "DOMException code is:  " << e.code << std::endl;
 
         if (DOMImplementation::loadDOMExceptionMsg(e.code, errText, maxChars))
-            XERCES_STD_QUALIFIER cerr << "Message is: " << StrX(errText) << XERCES_STD_QUALIFIER endl;
+            std::cerr << "Message is: " << StrX(errText) << std::endl;
 
         errorsOccured = true;
     }
@@ -579,7 +723,6 @@ void TestParserFromFile()
     //// Check for error report
     if (errReporter->getSawErrors())
     {
-        //
         std::cout << "Got Error when parsing" << std::endl;
     }
 
@@ -600,19 +743,19 @@ void TestParserFromFile()
     }
     catch (const OutOfMemoryException&)
     {
-        XERCES_STD_QUALIFIER cerr << "OutOfMemoryException" << XERCES_STD_QUALIFIER endl;
+        std::cerr << "OutOfMemoryException" << std::endl;
     }
     catch (const DOMLSException & e)
     {
-        XERCES_STD_QUALIFIER cerr << "An error occurred during serialization of the DOM tree. Msg is:"
-            << XERCES_STD_QUALIFIER endl
-            << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
+        std::cerr << "An error occurred during serialization of the DOM tree. Msg is:"
+            << std::endl
+            << StrX(e.getMessage()) << std::endl;
     }
     catch (const XMLException & e)
     {
-        XERCES_STD_QUALIFIER cerr << "An error occurred during creation of output transcoder. Msg is:"
-            << XERCES_STD_QUALIFIER endl
-            << StrX(e.getMessage()) << XERCES_STD_QUALIFIER endl;
+        std::cerr << "An error occurred during creation of output transcoder. Msg is:"
+            << std::endl
+            << StrX(e.getMessage()) << std::endl;
     }
 
     delete domParser;
@@ -697,7 +840,7 @@ void TestXPath()
 
     ////-----------------------------------------------------
     theOutPut->setByteStream(myFormTarget);
-    
+
     ////
     auto doc1 = domImpl->createDocument();
 
@@ -1404,9 +1547,7 @@ void TestSimpleMemoryLeak()
     //doc2->createCDATASection(u"<sdf>")->
 
     if (element1->isEqualNode(element2))
-    {
         std::cout << "E1 == E2" << std::endl;
-    }
     else
         std::cout << "E1 != E2" << std::endl;
 
@@ -1471,15 +1612,10 @@ void CreateElement(DOMDocument *doc)
 
     //auto temp = element1->getNodeValue();
     //element1->setNodeValue(u"WHAT!!!");
-    
+
     //std::cout << XMLString::transcode(temp) << std::endl;
 
     element1->release();
-}
-
-void Case1(DOMDocument *doc)
-{
-    //auto element1 = doc->
 }
 
 void TestSomeCase()
@@ -1540,6 +1676,7 @@ bool DOMPrintErrorHandler::handleError(const DOMError &domError)
     return true;
 }
 
+// XercesC is not efficient for Child nodes iteration
 void CountingInternalNode(DOMElement *element)
 {
     auto nodeList = element->getChildNodes();

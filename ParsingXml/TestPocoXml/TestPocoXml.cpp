@@ -88,8 +88,6 @@ void basicCreateAndPrintAndEncoding()
     NodeList * test = pRoot->childNodes();
     pRoot->getNodeByPath("");
     pRoot->getNodeValue();
-    
-    
 
     // Child Node
     AutoPtr<Element> pChild2 = pDoc->createElement("ccc:child2");
